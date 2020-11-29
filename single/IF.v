@@ -2,7 +2,6 @@ module IF(
           input wire         clk,
           input wire         reset,
           input wire         Controller_branch,
-          input wire         Controller_branch_kick_up,
           input wire         ALU_Zero,
           // input wire         ALU_Zero_kick_up,
           input wire [31:0]  imme,
@@ -12,47 +11,21 @@ module IF(
           output wire        inst_mem_read_enable,
           output wire [31:0] inst_mem_read_addr
           );
-   reg                       ALU_Zero_ready;
-   reg                       Controller_branch_ready;
-   reg                       imme_ready;
-   reg                       pc_ready;
-   reg                       instruction_kick_up_internal;
+   reg                       IF_kick_up_internal;
    reg [31:0]                pc;
-   always @ (posedge clk or negedge reset)
-     if (! reset) ALU_Zero_ready <= 0;
-     else
-       if (pc_ready)  ALU_Zero_ready <= 0;
-       else
-         if (ALU_Zero_kick_up) ALU_Zero_ready <= 1;
-
-   always @ (posedge clk or negedge reset)
-     if (!reset) Controller_branch_ready <= 0;
-     else
-       if (pc_ready) Controller_branch_ready <= 0;
-       else
-         if (Controller_branch_kick_up) Controller_branch_ready <= 1;
-
-   always @ (posedge clk or negedge reset)
-     if (!reset) imme_ready <= 0;
-     else
-       if (pc_ready) imme_ready <= 0;
-       else
-         if (imme_kick_up) imme_ready <= 1;
-
+   reg                       pc_ready;
    wire [31:0]               jmp_destination;
-   assign jmp_destination = {imme[30:0], 1'b0} + pc;
-
    wire [31:0]               normal_destination;
-   assign normal_destination = pc + 4;
-
    wire [31:0]               pc_next;
+   assign jmp_destination = {imme[30:0], 1'b0} + pc;
+   assign normal_destination = pc + 4;
    assign pc_next = (Controller_branch && ALU_Zero)? jmp_destination: normal_destination;
 
    always @ (posedge clk or negedge reset)
      if (!reset) begin
         pc <= 0;
      end else begin
-        if (ALU_Zero_ready && Controller_branch_ready && imme_ready) pc <= pc_next;
+        if (WB_kick_up) pc <= pc_next;
         else pc <= pc;
      end
    assign inst_mem_read_addr = pc;
@@ -60,15 +33,15 @@ module IF(
    always @ (posedge clk or negedge reset)
      if (!reset) pc_ready <= 1;
      else
-       if (ALU_Zero_ready && Controller_branch_ready && imme_ready) pc_ready <= 1;
+       if (WB_kick_up) pc_ready <= 1;
        else
-         if (instruction_kick_up_internal) pc_ready <= 0;
+         if (IF_kick_up_internal) pc_ready <= 0;
    assign inst_mem_read_enable = 1;
 
    always @ (posedge clk or negedge reset)
-     if (!reset) instruction_kick_up_internal <= 0;
+     if (!reset) IF_kick_up_internal <= 0;
      else
-       if (pc_ready) instruction_kick_up_internal <= 1;
-       else instruction_kick_up_internal <= 0;
-   assign instruction_kick_up = instruction_kick_up_internal;
+       if (pc_ready && ~IF_kick_up_internal) IF_kick_up_internal <= 1;
+       else IF_kick_up_internal <= 0;
+   assign IF_kick_up = IF_kick_up_internal;
 endmodule

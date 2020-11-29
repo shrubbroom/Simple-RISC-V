@@ -2,7 +2,7 @@ module WB(
           input wire         clk,
           input wire         reset,
           input wire [31:0]  ALU_result,
-          input wire [31:0]  mem_read_data,
+          input wire [31:0]  Data_mem_read_data,
           input wire         Controller_regwrite,
           input wire         Controller_memtoreg,
           input wire         MEM_kick_up,
@@ -10,11 +10,11 @@ module WB(
           output wire        reg_write_enable,
           output wire [31:0] reg_write_data
           );
-   assign reg_write_data = Controller_memtoreg?mem_read_data:ALU_result;
+   assign reg_write_data = Controller_memtoreg?Data_mem_read_data:ALU_result;
 
    reg                       reg_write_enable_internal;
-   always @ (posedge clk or negedge reset)
-     if (~reset)
+   always @ (posedge clk or posedge reset)
+     if (reset)
        reg_write_enable_internal <= 0;
      else begin
         if (MEM_kick_up) reg_write_enable_internal <= 1;
@@ -23,8 +23,8 @@ module WB(
    assign reg_write_enable = (reg_write_enable_internal)&&Controller_regwrite;
 
    reg WB_kick_up_internal;
-   always @ (posedge clk or negedge reset)
-     if (~reset)
+   always @ (posedge clk or posedge reset)
+     if (reset)
        WB_kick_up_internal <= 0;
      else
        if (reg_write_enable_internal) WB_kick_up_internal <= 1;

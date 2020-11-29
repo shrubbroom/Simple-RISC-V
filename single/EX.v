@@ -13,8 +13,8 @@ module EX
    (
     input wire         clk,
     input wire         reset,
-    input wire [31:0]  Read_data_1,
-    input wire [31:0]  Read_data_2,
+    input wire [31:0]  reg_read_data_1,
+    input wire [31:0]  reg_read_data_2,
     input wire [31:0]  imme,
     input wire         Controller_alusrc,
     input wire [3:0]   Controller_aluop,
@@ -25,13 +25,13 @@ module EX
     );
    wire [31:0]         ALU_op_1;
    wire [31:0]         ALU_op_2;
-   assign ALU_op_1 = Read_data_1;
-   assign ALU_op_2 = Controller_alusrc?imme:Read_data_2;
+   assign ALU_op_1 = reg_read_data_1;
+   assign ALU_op_2 = Controller_alusrc?imme:reg_read_data_2;
    assign ALU_zero = (ALU_result == 0);
    reg [31:0]          ALU_result_internal;
 
-   always @ (posedge clk or negedge reset)
-     if (~reset)
+   always @ (posedge clk or posedge reset)
+     if (reset)
        ALU_result_internal <= 0;
      else begin
         if (ID_kick_up) begin
@@ -53,8 +53,8 @@ module EX
    assign ALU_result = ALU_result_internal;
 
    reg ALU_kick_up_internal;
-   always @ (posedge clk or negedge reset)
-     if (~reset)
+   always @ (posedge clk or posedge reset)
+     if (reset)
        ALU_kick_up_internal <= 0;
      else begin
         if (ID_kick_up) ALU_kick_up_internal <= 1;

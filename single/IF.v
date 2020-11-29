@@ -17,12 +17,13 @@ module IF(
    wire [31:0]               jmp_destination;
    wire [31:0]               normal_destination;
    wire [31:0]               pc_next;
-   assign jmp_destination = {imme[30:0], 1'b0} + pc;
+   // assign jmp_destination = {imme[30:0], 1'b0} + pc; // TODO
+   assign jmp_destination = imme + pc;
    assign normal_destination = pc + 4;
    assign pc_next = (Controller_branch && ALU_zero)? jmp_destination: normal_destination;
 
-   always @ (posedge clk or negedge reset)
-     if (!reset) begin
+   always @ (posedge clk or posedge reset)
+     if (reset) begin
         pc <= 0;
      end else begin
         if (WB_kick_up) pc <= pc_next;
@@ -30,15 +31,15 @@ module IF(
      end
    assign inst_mem_read_addr = pc;
 
-   // always @ (posedge clk or negedge reset)
-   //   if (!reset) pc_ready <= 1;
+   // always @ (posedge clk or posedge reset)
+   //   if (reset) pc_ready <= 1;
    //   else
    //     if (WB_kick_up) pc_ready <= 1;
    //     else
    //       if (IF_kick_up_internal) pc_ready <= 0;
 
-   always @ (posedge clk or negedge reset)
-     if (!reset) IF_kick_up_internal <= 1;
+   always @ (posedge clk or posedge reset)
+     if (reset) IF_kick_up_internal <= 1;
      else
        if (WB_kick_up) IF_kick_up_internal <= 1;
        else IF_kick_up_internal <= 0;

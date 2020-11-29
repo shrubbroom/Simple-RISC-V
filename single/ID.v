@@ -1,8 +1,4 @@
 module ID #(
-            parameter ALU_ARITHMETIC =  2'd0,
-            parameter ALU_CONDITIONAL_JMP =  2'd1,
-            parameter ALU_UNCONDITIONAL_JMP =  2'd2,
-            parameter ALU_MEMORY =  2'd3,
             parameter OP_IMME_ARITHMETIC =  7'b0010011,
             parameter OP_ARITHMETIC =  7'b0110011,
             parameter OP_CONDITIONAL_JMP =  7'b1100011,
@@ -17,13 +13,13 @@ module ID #(
               output wire        Controller_branch,
               output wire        Controller_memread,
               output wire        Controller_memtoreg,
-              output wire [1:0]  Controller_aluop,
+              // output wire [1:0]  Controller_aluop,
+              output wire [3:0]  Controller_aluop,
               output wire        Controller_memwrite,
               output wire        Controller_alusrc,
               output wire        Controller_regwrite,
               output wire [31:0] imme,
-              output wire        Controller_kick_up,
-              output wire        imme_kick_up
+              output wire        Controller_kick_up
               );
    reg                           Controller_branch_internal;
    always @ (posedge clk or negedge reset)
@@ -114,31 +110,11 @@ module ID #(
        else Controller_alusrc_internal <= Controller_alusrc_internal;
    assign Controller_alusrc = Controller_alusrc_internal;
 
-   reg [1:0] Controller_aluop_internal;
-   always @ (posedge clk or negedge reset)
-     if(~reset)
-       Controller_aluop_internal <= 0;
-     else
-       if (IF_kick_up) begin
-          case (instruction[6:0])
-            OP_IMME_ARITHMETIC :
-              Controller_aluop_internal <= ALU_ARITHMETIC;
-            OP_ARITHMETIC :
-              Controller_aluop_internal <= ALU_ARITHMETIC;
-            OP_CONDITIONAL_JMP :
-              Controller_aluop_internal <= ALU_CONDITIONAL_JMP;
-            OP_UNCONDITIONAL_JMP :
-              Controller_aluop_internal <= ALU_UNCONDITIONAL_JMP;
-            OP_MEMORY_LOAD :
-              Controller_aluop_internal <= ALU_MEMORY;
-            OP_MEMORY_STORE :
-              Controller_aluop_internal <= ALU_MEMORY;
-            default :
-              Controller_aluop_internal <= ALU_ARITHMETIC;
-          endcase
-       end // if (IF_kick_up)
-       else Controller_aluop_internal <= Controller_aluop_internal;
-   assign Controller_aluop = Controller_aluop_internal;
+   ID_ALU_OP ID_ALU_OP(.opcode(instruction[6:0]),
+                       .func3(instruction[9:7]),
+                       .func7_sign(instruction[30]),
+                       .ALU_op(Controller_aluop)
+                       );
 
    reg [31:0] imme_internal;
    always @ (posedge clk or negedge reset)
@@ -162,9 +138,9 @@ module ID #(
                                {11'b1, instruction[31], instruction[19:12], instruction[20], instruction[30:21], 1'b0}:
                                {11'b0, instruction[31], instruction[19:12], instruction[20], instruction[30:21], 1'b0};
             OP_MEMORY_LOAD :
-               imme_internal <= instruction[31]==1?
-                                {20'b1, instruction[31:20]}:
-                                {20'b0, instruction[31:20]};
+              imme_internal <= instruction[31]==1?
+                               {20'b1, instruction[31:20]}:
+                               {20'b0, instruction[31:20]};
             OP_MEMORY_STORE :
               imme_internal <= instruction[31]==1?
                                {20'b1, instruction[31:25], instruction[11:7]}:
@@ -176,20 +152,25 @@ module ID #(
        else imme_internal <= imme_internal;
    assign imme = imme_internal;
 
-   reg imme_ready;
-   always @ (posedge clk or negedge reset)
-     if (!reset) imme_ready <= 0;
-     else
-       if (IF_kick_up) imme_ready <= 1;
-       else
-         if (imme_kick_up_internal) imme_ready <= 0;
+   // reg imme_ready;
+   // always @ (posedge clk or negedge reset)
+   //   if (!reset) imme_ready <= 0;
+   //   else
+   //     if (IF_kick_up) imme_ready <= 1;
+   //     else
+   //       if (imme_kick_up_internal) imme_ready <= 0;
 
-   reg imme_kick_up_internal;
+   // reg imme_kick_up_internal;
+   // always @ (posedge clk or negedge reset)
+   //   if (!reset) imme_kick_up_internal <= 0;
+   //   else
+   //     if (imme_ready && ~imme_kick_up_internal) imme_kick_up_internal <= 1;
+   //     else imme_kick_up_internal <= 0;
+   reg Controller_kick_up_internal;
    always @ (posedge clk or negedge reset)
-     if (!reset) imme_kick_up_internal <= 0;
+     if (!reset) Controller_kick_up_internal <= 0;
      else
-       if (imme_ready && ~imme_kick_up_internal) imme_kick_up_internal <= 1;
-       else imme_kick_up_internal <= 0;
-   assign imme_kick_up = imme_kick_up_internal;
-   assign Controller_kick_up = imme_kick_up_internal;
+       if (IF_kick_up) Controller_kick_up_internal <= 1;
+       else Controller_kick_up_internal <= 0;
+   assign Controller_kick_up = Controller_kick_up_internal;
 endmodule

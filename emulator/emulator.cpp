@@ -136,6 +136,7 @@ int main(){
           cout << "This is not a command " << command <<'\n';
         }
     }
+
     *instruction = IO_inst_ram_read(*pc);
     RISC_V_parser(instruction, descriptor);
     switch (*descriptor[OP]) {

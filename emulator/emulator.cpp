@@ -48,7 +48,7 @@ void DEBUG_print_all(signed int ** RF, unsigned int * pc, signed int * instructi
   cout<<"Register files are:\n";
   for(int m = 0; m <= 7; ++m){
     for (int i = 0; i <= 3; ++i) {
-      cout << "x" << setw(2) << left << i + m*4 << " = " << setw(10) << *RF[i+m*4] << " | ";
+      cout << "x" << setw(2) << right << i + m*4 << " = " << setw(10) << *RF[i+m*4] << " | ";
     }
     cout<<"\n";
   }
@@ -71,9 +71,9 @@ void DEBUG_print_all(signed int ** RF, unsigned int * pc, signed int * instructi
   case SW: cout<<"SW"<<"\n"; break;
   default : cout<<"Undetermined" << '\n';
   }
-  cout<<"RS1 is: x"<<*descriptor[RS1]<<" = "<<bitset<32>(*RF[*descriptor[RS1]])<<" ("<<dec<<*RF[*descriptor[RS1]]<<")"<<"\n";
-  cout<<"RS2 is: x"<<*descriptor[RS2]<<" = "<<bitset<32>(*RF[*descriptor[RS2]])<<" ("<<dec<<*RF[*descriptor[RS2]]<<")"<<"\n";
-  cout<<"RD is: x"<<*descriptor[RD]<<" = "<<bitset<32>(*RF[*descriptor[RD]])<<" ("<<dec<<*RF[*descriptor[RD]]<<")"<<"\n";
+  cout<<"RS1 is: x"<<*descriptor[RS1]<<" = "<<RF[*descriptor[RS1]]<<"\n";
+  cout<<"RS2 is: x"<<*descriptor[RS2]<<" = "<<RF[*descriptor[RS2]]<<"\n";
+  cout<<"RD is: x"<<*descriptor[RD]<<"\n";
   cout<<"IMME is: "<<bitset<32>(*descriptor[IMME])<<" ("<<*descriptor[IMME]<<")"<<"\n";
 }
 FILE* IO_inst_ram_normalize(FILE*);
@@ -92,9 +92,13 @@ int main(){
 
   signed int * instruction;
   instruction = (signed int *) malloc(sizeof(signed int));
+  *instruction = 0;
 
   int * descriptor[5];
-  for(int i = 0; i <= 4; ++i) descriptor[i] = (int*) malloc(sizeof(int));
+  for(int i = 0; i <= 4; ++i) {
+    descriptor[i] = (int*) malloc(sizeof(int));
+    *descriptor[i] = 0;
+  }
 
   cout << "Connecting instruction RAM file and data RAM file\n";
   inst_ram = fopen("machinecode.txt", "r");
@@ -205,8 +209,8 @@ void RISC_V_parser(signed int* instruction, int** descriptor){
   case 0b0010011: RISC_V_imme_arithmetic_parser(instruction, descriptor); break;
   case 0b1100011: RISC_V_conditional_jmp_parser(instruction, descriptor); break;
   case 0b1101111: RISC_V_unconditional_jmp_parser(instruction, descriptor); break;
-  case 0b0000011: RISC_V_load_parser(instruction, descriptor); break;
-  case 0b0100011: RISC_V_store_parser(instruction, descriptor); break;
+  case 0b0000011: RISC_V_load_parser(instruction, descriptor);
+  case 0b0100011: RISC_V_store_parser(instruction, descriptor);
   default: exit(1);
   }
 }
@@ -383,19 +387,17 @@ signed int IO_inst_ram_read(unsigned int pc){
   return instruction;
 }
 signed int IO_data_ram_read(signed int addr){
-  signed int value = 0;
-  signed int semibyte;
-  int counter = 0;
+  int value = 0;
+  int semibyte;
   if(fseek(data_ram, addr*3, SEEK_SET)) {
     cerr<<"fatal error in seeking data position\n";
     exit(1);
   }
   for (int i = 0; i <= 3; ++ i){
     semibyte = fgetc(data_ram);
-    value = value + (IO_char_to_hex(semibyte) << (counter * 4));
-    counter ++;
+    value = (value << 4) + IO_char_to_hex(semibyte);
     semibyte = fgetc(data_ram);
-    value = value + (IO_char_to_hex(semibyte) << (counter * 4));
+    value = (value << 4) + IO_char_to_hex(semibyte);
     semibyte = fgetc(data_ram);
   }
   return value;
@@ -409,7 +411,7 @@ void IO_data_ram_write(signed int src_value, signed int addr){
   for (int i = 0; i <= 3; ++ i){
     fputc(IO_hex_to_char(src_value & 0xf), data_ram);
     src_value = src_value >> 4;
-    fputc(IO_hex_to_char(src_value & 0xf), data_ram);
+    fputc(IO_hex_to_char(src_value) & 0xf, data_ram);
     src_value = src_value >> 4;
     fputc(0xa, data_ram);
   }

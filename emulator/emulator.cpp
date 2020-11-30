@@ -409,14 +409,14 @@ signed int IO_data_ram_read(signed int addr){
     counter ++;
     semibyte = fgetc(data_ram);
     value = value + (IO_char_to_hex(semibyte) << (counter * 4));
-    for(int i = 0; i<= LB - 1; ++ i)
-      semibyte = fgetc(data_ram);
+    if(LB == 2) semibyte = fgetc(data_ram);
+    semibyte = fgetc(data_ram);
   }
   return value;
 }
 
 void IO_data_ram_write(signed int src_value, signed int addr){
-  if(fseek(data_ram, addr*3, SEEK_SET)) {
+  if(fseek(data_ram, addr*(2+LB), SEEK_SET)) {
     cerr<<"fatal error in seeking data position\n";
     exit(1);
   }

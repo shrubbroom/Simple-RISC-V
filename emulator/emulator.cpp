@@ -21,6 +21,15 @@ using namespace std;
 #define RS1 2
 #define RS2 3
 #define IMME 4
+
+#ifdef _WIN32
+#define LB 2
+#elif _WIN64
+#define LB 2
+#else
+#define LB 1
+#endif
+
 void RISC_V_parser(signed int*, int**);
 void RISC_V_arithmetic_parser(signed int* instruction, int** descriptor);
 void RISC_V_imme_arithmetic_parser(signed int* instruction, int** descriptor);
@@ -376,7 +385,7 @@ signed int IO_inst_ram_read(unsigned int pc){
   int instruction = 0;
   int semibyte;
   semibyte = fgetc(inst_ram);
-  if(fseek(inst_ram, (pc/4)*9, SEEK_SET)) {
+  if(fseek(inst_ram, (pc/4)*(8 + LB), SEEK_SET)) {
     cerr << "exiting in seeking instruction, PC is " << pc;
     exit(1);
   }
@@ -390,7 +399,7 @@ signed int IO_data_ram_read(signed int addr){
   signed int value = 0;
   signed int semibyte;
   int counter = 0;
-  if(fseek(data_ram, addr*3, SEEK_SET)) {
+  if(fseek(data_ram, addr*(2+LB), SEEK_SET)) {
     cerr<<"fatal error in seeking data position\n";
     exit(1);
   }
@@ -400,7 +409,8 @@ signed int IO_data_ram_read(signed int addr){
     counter ++;
     semibyte = fgetc(data_ram);
     value = value + (IO_char_to_hex(semibyte) << (counter * 4));
-    semibyte = fgetc(data_ram);
+    for(int i = 0; i<= LB - 1; ++ i)
+      semibyte = fgetc(data_ram);
   }
   return value;
 }
@@ -415,6 +425,7 @@ void IO_data_ram_write(signed int src_value, signed int addr){
     src_value = src_value >> 4;
     fputc(IO_hex_to_char(src_value & 0xf), data_ram);
     src_value = src_value >> 4;
+    if (LB == 2) fputc(0xd, data_ram);
     fputc(0xa, data_ram);
   }
 }

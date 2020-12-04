@@ -14,6 +14,7 @@ module MEM(
            output wire        MEM_kick_up
            );
    reg                        Data_mem_write_enable_internal;
+
    always @ (posedge clk or posedge reset)
      if (reset)
        Data_mem_write_enable_internal <= 0;
@@ -24,7 +25,7 @@ module MEM(
    assign Data_mem_write_addr = ALU_result;
    assign Data_mem_write_data = reg_read_data_2;
 
-   assign Data_mem_read_enable = Controller_memread;
+   assign Data_mem_read_enable = Controller_memread | Data_mem_write_enable;
    assign Data_mem_read_addr = ALU_result;
 
    reg                        MEM_kick_up_internal;

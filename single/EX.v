@@ -29,7 +29,6 @@ module EX
    assign ALU_op_2 = Controller_alusrc?imme:reg_read_data_2;
    assign ALU_zero = (ALU_result == 0);
    reg [31:0]          ALU_result_internal;
-
    always @ (posedge clk or posedge reset)
      if (reset)
        ALU_result_internal <= 0;

@@ -22,6 +22,16 @@ using namespace std;
 #define RS2 3
 #define IMME 4
 
+#define ALU_OP_ADD 0
+#define ALU_OP_SUB 1
+#define ALU_OP_AND 2
+#define ALU_OP_OR 3
+#define ALU_OP_XOR 4
+#define ALU_OP_LT 5
+#define ALU_OP_NONE 6
+#define ALU_OP_SHIFT_LEFT 7
+#define ALU_OP_SHIFT_RIGHT 8
+
 #ifdef _WIN32
 #define LB 2
 #elif _WIN64
@@ -65,19 +75,45 @@ void DEBUG_print_all(signed int ** RF, unsigned int * pc, signed int * instructi
   cout<<"Previous instruction is: "<<bitset<32>(*instruction)<<"\n";
   cout<<"Instruction type is: ";
   switch (*descriptor[OP]){
-  case ADD: cout<<"ADD"<<"\n"; break;
-  case SUB: cout<<"SUB"<<"\n"; break;
-  case ADDI: cout<<"ADDI"<<"\n"; break;
-  case AND: cout<<"AND"<<"\n"; break;
-  case OR: cout<<"OR"<<"\n"; break;
-  case XOR: cout<<"XOR"<<"\n"; break;
-  case BLT: cout<<"BLT"<<"\n"; break;
-  case BEQ: cout<<"BEQ"<<"\n"; break;
-  case JAL: cout<<"JAL"<<"\n"; break;
-  case SLL: cout<<"SLL"<<"\n"; break;
-  case SRL: cout<<"SRL"<<"\n"; break;
-  case LW: cout<<"LW"<<"\n"; break;
-  case SW: cout<<"SW"<<"\n"; break;
+  case ADD: cout<<"ADD"
+                <<" ("<<bitset<4>(ALU_OP_ADD)<<")"
+                <<"\n"; break;
+  case SUB: cout<<"SUB"
+                <<" ("<<bitset<4>(ALU_OP_SUB)<<")"
+                <<"\n"; break;
+  case ADDI: cout<<"ADDI"
+                 <<" ("<<bitset<4>(ALU_OP_ADD)<<")"
+                 <<"\n"; break;
+  case AND: cout<<"AND"
+                <<" ("<<bitset<4>(ALU_OP_AND)<<")"
+                <<"\n"; break;
+  case OR: cout<<"OR"
+                <<" ("<<bitset<4>(ALU_OP_OR)<<")"
+               <<"\n"; break;
+  case XOR: cout<<"XOR"
+                <<" ("<<bitset<4>(ALU_OP_XOR)<<")"
+                <<"\n"; break;
+  case BLT: cout<<"BLT"
+                <<" ("<<bitset<4>(ALU_OP_LT)<<")"
+                <<"\n"; break;
+  case BEQ: cout<<"BEQ"
+                <<" ("<<bitset<4>(ALU_OP_SUB)<<")"
+                <<"\n"; break;
+  case JAL: cout<<"JAL"
+                <<" ("<<bitset<4>(ALU_OP_NONE)<<")"
+                <<"\n"; break;
+  case SLL: cout<<"SLL"
+                <<" ("<<bitset<4>(ALU_OP_SHIFT_LEFT)<<")"
+                <<"\n"; break;
+  case SRL: cout<<"SRL"
+                <<" ("<<bitset<4>(ALU_OP_SHIFT_RIGHT)<<")"
+                <<"\n"; break;
+  case LW: cout<<"LW"
+                <<" ("<<bitset<4>(ALU_OP_ADD)<<")"
+               <<"\n"; break;
+  case SW: cout<<"SW"
+                <<" ("<<bitset<4>(ALU_OP_ADD)<<")"
+               <<"\n"; break;
   default : cout<<"Undetermined" << '\n';
   }
   cout<<"RS1 is: x"<<*descriptor[RS1]<<" = "<<bitset<32>(*RF[*descriptor[RS1]])<<" ("<<dec<<*RF[*descriptor[RS1]]<<")"<<"\n";
@@ -399,6 +435,7 @@ signed int IO_inst_ram_read(unsigned int pc){
 signed int IO_data_ram_read(signed int addr){
   signed int value = 0;
   signed int semibyte;
+  signed int tmp;
   int counter = 0;
   if(fseek(data_ram, addr*(2+LB), SEEK_SET)) {
     cerr<<"fatal error in seeking data position\n";
@@ -406,10 +443,10 @@ signed int IO_data_ram_read(signed int addr){
   }
   for (int i = 0; i <= 3; ++ i){
     semibyte = fgetc(data_ram);
-    value = value + (IO_char_to_hex(semibyte) << (counter * 4));
+    value = value + (IO_char_to_hex(semibyte) << ((counter + 1) * 4));
     counter ++;
     semibyte = fgetc(data_ram);
-    value = value + (IO_char_to_hex(semibyte) << (counter * 4));
+    value = value + (IO_char_to_hex(semibyte) << ((counter - 1) * 4));
     if(LB == 2) semibyte = fgetc(data_ram);
     semibyte = fgetc(data_ram);
   }
@@ -417,14 +454,16 @@ signed int IO_data_ram_read(signed int addr){
 }
 
 void IO_data_ram_write(signed int src_value, signed int addr){
+  signed tmp;
   if(fseek(data_ram, addr*(2+LB), SEEK_SET)) {
     cerr<<"fatal error in seeking data position\n";
     exit(1);
   }
   for (int i = 0; i <= 3; ++ i){
-    fputc(IO_hex_to_char(src_value & 0xf), data_ram);
+    tmp = IO_hex_to_char(src_value & 0xf);
     src_value = src_value >> 4;
     fputc(IO_hex_to_char(src_value & 0xf), data_ram);
+    fputc(tmp, data_ram);
     src_value = src_value >> 4;
     if (LB == 2) fputc(0xd, data_ram);
     fputc(0xa, data_ram);

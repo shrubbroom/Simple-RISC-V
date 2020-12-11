@@ -6,12 +6,12 @@ module IF #(
             ) (
                input         clk,
                input         reset,
-               input         ID_branch,
-               input         EX_zero,
-               input         EX_branch,
-               input         EX_flush,
+               input         ID_EX_branch,
+               input         EX_MEM_zero,
+               input         EX_MEM_branch,
+               input         EX_MEM_flush,
                input         EX_stall, // load-use stall
-               input [31:0]  imme,
+               input [31:0]  ID_EX_imme,
                input         ID_kick_up,
                output [31:0] inst_mem_read_addr,
                output        inst_mem_read_enable,
@@ -38,18 +38,18 @@ module IF #(
        if (EX_stall) begin
           pc <= pc; // fatal hazard
        end else
-         if (EX_flush) begin
+         if (EX_MEM_flush) begin
             if(pc_take) pc <= pc_stash_base + 4;
             else pc <= pc_stash_base + pc_stash_imme;
          end
          else
-           if (ID_branch) begin
+           if (ID_EX_branch) begin
               pc_stash_base <= pc_jmp;
-              pc_stash_imme <= imme;
+              pc_stash_imme <= ID_EX_imme;
               if (pc_prediction_table_valid[pc_jmp[9:0]] &&
                   pc_prediction_table_tag[pc_jmp[9:0]] == pc_jmp[31:10]) begin
                  if (pc_prediction_table_take[pc_jmp[9:0]][0] == 1) begin
-                    pc <= pc_jmp + imme;
+                    pc <= pc_jmp + ID_EX_imme;
                     pc_take <= 1;
                  end
                  else begin
@@ -58,7 +58,7 @@ module IF #(
                  end
               end
               else begin
-                 pc <= pc_jmp + imme; // always jump if there is no record for current pc
+                 pc <= pc_jmp + ID_EX_imme; // always jump if there is no record for current pc
                  pc_take <= 1;
               end
            end
@@ -69,8 +69,8 @@ module IF #(
           pc_prediction_table_valid[i] = 0;
        end
      else
-       if (EX_branch)
-         case ({EX_zero,pc_prediction_table_valid[pc_stash_base[9:0]] == 0})
+       if (EX_MEM_branch)
+         case ({EX_MEM_zero,pc_prediction_table_valid[pc_stash_base[9:0]] == 0})
            2'b00 : begin
               pc_prediction_table_valid[pc_stash_base[9:0]] <= 1;
               pc_prediction_table_tag[pc_stash_base[9:0]] <= pc_stash_base[31:10];
@@ -107,7 +107,7 @@ module IF #(
                  pc_prediction_table_take[pc_stash_base[9:0]] <= PREDICTION_TAKE;
               end
            end
-         endcase // case ({EX_flush,pc_prediction_table_valid[pc_stash_base[9:0]] == 0})
+         endcase // case ({EX_MEM_flush,pc_prediction_table_valid[pc_stash_base[9:0]] == 0})
        else begin end
 
    reg IF_kick_up_internal;

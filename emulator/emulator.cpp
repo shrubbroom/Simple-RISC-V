@@ -116,6 +116,7 @@ void DEBUG_print_all(signed int ** RF, unsigned int * pc, signed int * instructi
                <<"\n"; break;
   default : cout<<"Undetermined" << '\n';
   }
+
   cout<<"RS1 is: x"<<*descriptor[RS1]<<" = "<<bitset<32>(*RF[*descriptor[RS1]])<<" ("<<dec<<*RF[*descriptor[RS1]]<<")"<<"\n";
   cout<<"RS2 is: x"<<*descriptor[RS2]<<" = "<<bitset<32>(*RF[*descriptor[RS2]])<<" ("<<dec<<*RF[*descriptor[RS2]]<<")"<<"\n";
   cout<<"RD is: x"<<*descriptor[RD]<<" = "<<bitset<32>(*RF[*descriptor[RD]])<<" ("<<dec<<*RF[*descriptor[RD]]<<")"<<"\n";

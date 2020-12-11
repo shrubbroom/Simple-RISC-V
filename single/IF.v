@@ -22,6 +22,7 @@ module IF(
    assign normal_destination = pc + 4;
    assign pc_next = (Controller_branch && ALU_zero)? jmp_destination: normal_destination;
 
+
    always @ (posedge clk or posedge reset)
      if (reset) begin
         pc <= 0;

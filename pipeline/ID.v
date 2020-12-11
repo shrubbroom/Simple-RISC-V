@@ -20,10 +20,10 @@ module ID #(
               output        ID_memwrite,
               output        ID_alusrc,
               output        ID_regwrite,
-              output [31:0] imme,
-              output [4:0]  rs1,
-              output [4:0]  rs2,
-              output [4:0]  rd,
+              output [31:0] ID_imme,
+              output [4:0]  ID_rs1,
+              output [4:0]  ID_rs2,
+              output [4:0]  ID_rd,
               output        ID_kick_up
               );
 
@@ -141,12 +141,32 @@ module ID #(
                          {20'b0, instruction_internal[31:20]};
        OP_CONDITIONAL_JMP :
          imme_internal = instruction_internal[31]==1?
-                         {{19{1'b1}}, instruction_internal[31], instruction_internal[7], instruction_internal[30:25], instruction_internal[11:8], 1'b0}:
-                         {19'b0, instruction_internal[31], instruction_internal[7], instruction_internal[30:25], instruction_internal[11:8], 1'b0};
+                         {{19{1'b1}},
+                          instruction_internal[31],
+                          instruction_internal[7],
+                          instruction_internal[30:25],
+                          instruction_internal[11:8],
+                          1'b0}:
+                         {19'b0,
+                          instruction_internal[31],
+                          instruction_internal[7],
+                          instruction_internal[30:25],
+                          instruction_internal[11:8],
+                          1'b0};
        OP_UNCONDITIONAL_JMP :
          imme_internal = instruction_internal[31]==1?
-                         {{11{1'b1}}, instruction_internal[31], instruction_internal[19:12], instruction_internal[20], instruction_internal[30:21], 1'b0}:
-                         {11'b0, instruction_internal[31], instruction_internal[19:12], instruction_internal[20], instruction_internal[30:21], 1'b0};
+                         {{11{1'b1}},
+                          instruction_internal[31],
+                          instruction_internal[19:12],
+                          instruction_internal[20],
+                          instruction_internal[30:21],
+                          1'b0}:
+                         {11'b0,
+                          instruction_internal[31],
+                          instruction_internal[19:12],
+                          instruction_internal[20],
+                          instruction_internal[30:21],
+                          1'b0};
        OP_MEMORY_LOAD :
          imme_internal = instruction_internal[31]==1?
                          {{20{1'b1}}, instruction_internal[31:20]}:
@@ -158,22 +178,21 @@ module ID #(
        default :
          imme_internal = 0;
      endcase // case (instruction_internal[6:0])
-   assign imme = imme_internal;
+   assign ID_imme = imme_internal;
 
    reg [4:0]                rs1_internal;
    always @ *
      rs1_internal = instruction[19:15];
-   assign rs1 = rs1_internal;
+   assign ID_rs1 = rs1_internal;
 
    reg [4:0]                rs2_internal;
    always @ *
      rs2_internal = instruction[24:20];
-   assign rs2 = rs2_internal;
+   assign ID_rs2 = rs2_internal;
 
    reg [4:0]                rd_internal;
    always @ *
      rd_internal = instruction[11:7];
-   assign rd = rd_internal;
-
+   assign ID_rd = rd_internal;
 
 endmodule

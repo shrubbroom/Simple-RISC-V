@@ -1,136 +1,189 @@
 module ID_EX_reg(
-                 input         clk,
-                 input         reset,
-                 input         ID_kick_up,
-                 input         ID_branch,
-                 input         ID_memread,
-                 input         ID_memtoreg,
-                 input         ID_aluop,
-                 input         ID_memwrite,
-                 input         ID_alusrc,
-                 input         ID_regwrite,
-                 input [31:0]  ID_imme,
-                 input [4:0]   ID_rs1,
-                 input [31:0]  ID_rs1_data,
-                 input [4:0]   ID_rs2,
-                 input [31:0]  ID_rs2_data,
-                 input [4:0]   ID_rd,
-                 output        ID_EX_branch,
-                 output        ID_EX_memread,
-                 output        ID_EX_memtoreg,
-                 output        ID_EX_aluop,
-                 output        ID_EX_memwrite,
-                 output        ID_EX_alusrc,
-                 output        ID_EX_regwrite,
-                 output [31:0] ID_EX_imme,
-                 output [4:0]  ID_EX_rs1,
-                 output [31:0] ID_EX_rs1_data,
-                 output [4:0]  ID_EX_rs2,
-                 output [31:0] ID_EX_rs2_data,
-                 output [4:0]  ID_EX_rd
+                 input             clk,
+                 input             reset,
+                 input             EX_MEM_flush,
+                 input             EX_MEM_stall,
+                 input             ID_branch,
+                 input             ID_memread,
+                 input             ID_memtoreg,
+                 input [3:0]       ID_aluop,
+                 input             ID_memwrite,
+                 input             ID_alusrc,
+                 input             ID_regwrite,
+                 input [31:0]      ID_imme,
+                 input [4:0]       ID_rs1,
+                 input [31:0]      ID_rs1_data,
+                 input [4:0]       ID_rs2,
+                 input [31:0]      ID_rs2_data,
+                 input [4:0]       ID_rd,
+                 input             ID_take,
+                 output reg        ID_EX_branch,
+                 output reg        ID_EX_memread,
+                 output reg        ID_EX_memtoreg,
+                 output reg [3:0]  ID_EX_aluop,
+                 output reg        ID_EX_memwrite,
+                 output reg        ID_EX_alusrc,
+                 output reg        ID_EX_regwrite,
+                 output reg [31:0] ID_EX_imme,
+                 output reg [4:0]  ID_EX_rs1,
+                 output reg [31:0] ID_EX_rs1_data,
+                 output reg [4:0]  ID_EX_rs2,
+                 output reg [31:0] ID_EX_rs2_data,
+                 output reg [4:0]  ID_EX_rd,
+                 output reg        ID_EX_take
                  );
-   reg                         ID_branch_out_internal;
    always @ (posedge clk or posedge reset)
      if (reset)
-       ID_branch_out_internal <= 0;
-     else if (ID_kick_up) ID_branch_out_internal <= ID_branch;
-     else ID_branch_out_internal <= ID_branch_out_internal;
-   assign ID_EX_branch = ID_branch_out_internal;
+       ID_EX_branch <= 0;
+     else
+       if (EX_MEM_flush) ID_EX_branch <= 0;
+       else
+         if (EX_MEM_stall) ID_EX_branch <= ID_EX_branch;
+         else
+           ID_EX_branch <= ID_branch;
 
-   reg                         ID_memread_out_internal;
    always @ (posedge clk or posedge reset)
      if (reset)
-       ID_memread_out_internal <= 0;
-     else if (ID_kick_up) ID_memread_out_internal <= ID_memread;
-     else ID_memread_out_internal <= ID_memread_out_internal;
-   assign ID_EX_memread = ID_memread_out_internal;
+       ID_EX_memread <= 0;
+     else
+       if (EX_MEM_flush) ID_EX_memread <= 0;
+       else
+         if (EX_MEM_stall) ID_EX_memread <= ID_EX_memread;
+         else
+           ID_EX_memread <= ID_memread;
 
-   reg                         ID_memtoreg_out_internal;
    always @ (posedge clk or posedge reset)
      if (reset)
-       ID_memtoreg_out_internal <= 0;
-     else if (ID_kick_up) ID_memtoreg_out_internal <= ID_memtoreg;
-     else ID_memtoreg_out_internal <= ID_memtoreg_out_internal;
-   assign ID_EX_memtoreg = ID_memtoreg_out_internal;
+       ID_EX_memtoreg <= 0;
+     else
+       if (EX_MEM_flush) ID_EX_memtoreg <= 0;
+       else
+         if (EX_MEM_stall) ID_EX_memtoreg <= ID_EX_memtoreg;
+         else
+           ID_EX_memtoreg <= ID_memtoreg;
 
-   reg                         ID_aluop_out_internal;
    always @ (posedge clk or posedge reset)
      if (reset)
-       ID_aluop_out_internal <= 0;
-     else if (ID_kick_up) ID_aluop_out_internal <= ID_aluop;
-     else ID_aluop_out_internal <= ID_aluop_out_internal;
-   assign ID_EX_aluop = ID_aluop_out_internal;
+       ID_EX_aluop <= 0;
+     else
+       if (EX_MEM_flush) ID_EX_aluop <= 0;
+       else
+         if (EX_MEM_stall) ID_EX_aluop <= ID_EX_aluop;
+         else
+           ID_EX_aluop <= ID_aluop;
 
-   reg                         ID_memwrite_out_internal;
    always @ (posedge clk or posedge reset)
      if (reset)
-       ID_memwrite_out_internal <= 0;
-     else if (ID_kick_up) ID_memwrite_out_internal <= ID_memwrite;
-     else ID_memwrite_out_internal <= ID_memwrite_out_internal;
-   assign ID_EX_memwrite = ID_memwrite_out_internal;
+       ID_EX_memwrite <= 0;
+     else
+       if (EX_MEM_flush) ID_EX_memwrite <= 0;
+       else
+         if (EX_MEM_stall) ID_EX_memwrite <= ID_EX_memwrite;
+         else
+           ID_EX_memwrite <= ID_memwrite;
 
-   reg                         ID_alusrc_out_internal;
    always @ (posedge clk or posedge reset)
      if (reset)
-       ID_alusrc_out_internal <= 0;
-     else if (ID_kick_up) ID_alusrc_out_internal <= ID_alusrc;
-     else ID_alusrc_out_internal <= ID_alusrc_out_internal;
-   assign ID_EX_alusrc = ID_alusrc_out_internal;
+       ID_EX_alusrc <= 0;
+     else
+       if (EX_MEM_flush) ID_EX_alusrc <= 0;
+       else
+         if (EX_MEM_stall) ID_EX_alusrc <= ID_EX_alusrc;
+         else
+           ID_EX_alusrc <= ID_alusrc;
 
-   reg                         ID_regwrite_out_internal;
    always @ (posedge clk or posedge reset)
      if (reset)
-       ID_regwrite_out_internal <= 0;
-     else if (ID_kick_up) ID_regwrite_out_internal <= ID_regwrite;
-     else ID_regwrite_out_internal <= ID_regwrite_out_internal;
-   assign ID_EX_regwrite = ID_regwrite_out_internal;
+       ID_EX_regwrite <= 0;
+     else
+       if (EX_MEM_flush) ID_EX_regwrite <= 0;
+       else
+         if (EX_MEM_stall) ID_EX_regwrite <= ID_EX_regwrite;
+         else
+           ID_EX_regwrite <= ID_regwrite;
 
-   reg [31:0]                  imme_out_internal;
    always @ (posedge clk or posedge reset)
      if (reset)
-       imme_out_internal <= 0;
-     else if (ID_kick_up) imme_out_internal <= ID_imme;
-     else imme_out_internal <= imme_out_internal;
-   assign ID_EX_imme = imme_out_internal;
+       ID_EX_imme <= 0;
+     else
+       if (EX_MEM_flush) ID_EX_imme <= ID_imme;
+       else
+         if (EX_MEM_stall) ID_EX_imme <= ID_EX_imme;
+         else
+           ID_EX_imme <= ID_imme;
 
-   reg [4:0]                   rs1_out_internal;
    always @ (posedge clk or posedge reset)
      if (reset)
-       rs1_out_internal <= 0;
-     else if (ID_kick_up) rs1_out_internal <= ID_rs1;
-     else rs1_out_internal <= rs1_out_internal;
-   assign ID_EX_rs1 = rs1_out_internal;
+       ID_EX_rs1 <= 0;
+     else
+       if (EX_MEM_flush)
+         ID_EX_rs1 <= 0;
+       else
+         if (EX_MEM_stall)
+           ID_EX_rs1 <= ID_EX_rs1;
+         else
+           ID_EX_rs1 <= ID_rs1;
 
-   reg [31:0]                  rs1_data_out_internal;
    always @ (posedge clk or posedge reset)
      if (reset)
-       rs1_data_out_internal <= 0;
-     else if (ID_kick_up) rs1_data_out_internal <= ID_rs1_data;
-     else rs1_data_out_internal <= rs1_data_out_internal;
-   assign ID_EX_rs1_data = rs1_data_out_internal;
+       ID_EX_rs1_data <= 0;
+     else
+       if (EX_MEM_flush)
+         ID_EX_rs1_data <= 0;
+       else
+         if (EX_MEM_stall)
+           ID_EX_rs1_data <= ID_EX_rs1_data;
+         else
+           ID_EX_rs1_data <= ID_rs1_data;
 
-   reg [4:0]                   rs2_out_internal;
    always @ (posedge clk or posedge reset)
      if (reset)
-       rs2_out_internal <= 0;
-     else if (ID_kick_up) rs2_out_internal <= ID_rs2;
-     else rs2_out_internal <= rs2_out_internal;
-   assign ID_EX_rs2 = rs2_out_internal;
+       ID_EX_rs2 <= 0;
+     else
+       if (EX_MEM_flush)
+         ID_EX_rs2 <= 0;
+       else
+         if (EX_MEM_stall)
+           ID_EX_rs2 <= ID_EX_rs2;
+         else
+           ID_EX_rs2 <= ID_rs2;
 
-   reg [31:0]                  rs2_data_out_internal;
    always @ (posedge clk or posedge reset)
      if (reset)
-       rs2_data_out_internal <= 0;
-     else if (ID_kick_up) rs2_data_out_internal <= ID_rs2_data;
-     else rs2_data_out_internal <= rs2_data_out_internal;
-   assign ID_EX_rs2_data = rs2_data_out_internal;
+       ID_EX_rs2_data <= 0;
+     else
+       if (EX_MEM_flush)
+         ID_EX_rs2_data <= 0;
+       else
+         if (EX_MEM_stall)
+           ID_EX_rs2_data <= ID_EX_rs2_data;
+         else
+           ID_EX_rs2_data <= ID_rs2_data;
 
-   reg [4:0]                   rd_out_internal;
+
    always @ (posedge clk or posedge reset)
      if (reset)
-       rd_out_internal <= 0;
-     else if (ID_kick_up) rd_out_internal <= ID_rd;
-     else rd_out_internal <= rd_out_internal;
-   assign ID_EX_rd = rd_out_internal;
+       ID_EX_rd <= 0;
+     else
+       if (EX_MEM_flush)
+         ID_EX_rd <= 0;
+       else
+         if (EX_MEM_stall)
+           ID_EX_rd <= ID_EX_rd;
+         else
+           ID_EX_rd <= ID_rd;
+
+   always @ (posedge clk or posedge reset)
+     if (reset)
+       ID_EX_take <= 0;
+     else
+       if (EX_MEM_flush)
+         ID_EX_take <= 0; // It may be not important to flush this signal
+       else
+         if (EX_MEM_stall)
+           ID_EX_take <= ID_EX_take;
+         else
+           ID_EX_take <= ID_take;
+
 
 endmodule

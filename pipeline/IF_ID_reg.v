@@ -1,22 +1,28 @@
-module IF_ID_reg(input clk,
-                 input reset,
-                 input         IF_kick_up,
-                 input [31:0]  inst_mem_read_data,
-                 output [31:0] instruction,
-                 output IF_ID_reg_kickup
+module IF_ID_reg(
+                 input             clk,
+                 input             reset,
+                 input [31:0]      inst_mem_read_data,
+                 input             EX_MEM_flush,
+                 input             EX_MEM_stall,
+                 input             IF_take,
+                 input             ID_EX_branch,
+                 output reg [31:0] IF_ID_instruction,
+                 output reg        IF_ID_take
                  );
-   reg [31:0]                  instruction_internal;
    always @ (posedge clk or posedge reset)
-     if (reset) instruction_internal <= 0;
-     else if (IF_kick_up) instruction_internal <= inst_mem_read_data;
-     else instruction_internal <= instruction_internal;
-   assign instruction = instruction_internal;
-
-   reg                         IF_ID_reg_kickup_internal;
-   always @ (posedge clk or posedge reset)
-     if (reset) IF_ID_reg_kickup_internal <= 0;
-     else if (IF_kick_up) IF_ID_reg_kickup_internal <= 1;
-     else IF_ID_reg_kickup_internal <= 0;
-   assign IF_ID_reg_kickup = IF_ID_reg_kickup_internal;
+     if (reset) IF_ID_instruction <= 0;
+     else if(EX_MEM_flush)
+       IF_ID_instruction <= 0;
+     else
+       if (EX_MEM_stall)
+         IF_ID_instruction <= IF_ID_instruction;
+       else
+         if (ID_EX_branch)
+           IF_ID_instruction <= 0; // this is a nope for JMP instruction
+         else
+           IF_ID_instruction <= inst_mem_read_data;
+   always @ (posedge clk or negedge reset)
+     if (reset) IF_ID_take <= 0;
+     else IF_ID_take <= IF_take; // it is not important to flush or stall this signal
 
 endmodule // IF_ID_reg

@@ -36,7 +36,7 @@ module ID_EX_reg(
      if (reset)
        ID_EX_branch <= 0;
      else
-       if (EX_MEM_flush) ID_EX_branch <= 0;
+       if (EX_MEM_flush || ID_EX_branch) ID_EX_branch <= 0;
        else
          if (EX_MEM_stall) ID_EX_branch <= ID_EX_branch;
          else
@@ -46,7 +46,7 @@ module ID_EX_reg(
      if (reset)
        ID_EX_memread <= 0;
      else
-       if (EX_MEM_flush) ID_EX_memread <= 0;
+       if (EX_MEM_flush || ID_EX_branch) ID_EX_memread <= 0;
        else
          if (EX_MEM_stall) ID_EX_memread <= ID_EX_memread;
          else
@@ -56,7 +56,7 @@ module ID_EX_reg(
      if (reset)
        ID_EX_memtoreg <= 0;
      else
-       if (EX_MEM_flush) ID_EX_memtoreg <= 0;
+       if (EX_MEM_flush || ID_EX_branch) ID_EX_memtoreg <= 0;
        else
          if (EX_MEM_stall) ID_EX_memtoreg <= ID_EX_memtoreg;
          else
@@ -66,7 +66,7 @@ module ID_EX_reg(
      if (reset)
        ID_EX_aluop <= 0;
      else
-       if (EX_MEM_flush) ID_EX_aluop <= 0;
+       if (EX_MEM_flush || ID_EX_branch) ID_EX_aluop <= 0;
        else
          if (EX_MEM_stall) ID_EX_aluop <= ID_EX_aluop;
          else
@@ -76,7 +76,7 @@ module ID_EX_reg(
      if (reset)
        ID_EX_memwrite <= 0;
      else
-       if (EX_MEM_flush) ID_EX_memwrite <= 0;
+       if (EX_MEM_flush || ID_EX_branch) ID_EX_memwrite <= 0;
        else
          if (EX_MEM_stall) ID_EX_memwrite <= ID_EX_memwrite;
          else
@@ -86,7 +86,7 @@ module ID_EX_reg(
      if (reset)
        ID_EX_alusrc <= 0;
      else
-       if (EX_MEM_flush) ID_EX_alusrc <= 0;
+       if (EX_MEM_flush || ID_EX_branch) ID_EX_alusrc <= 0;
        else
          if (EX_MEM_stall) ID_EX_alusrc <= ID_EX_alusrc;
          else
@@ -96,7 +96,7 @@ module ID_EX_reg(
      if (reset)
        ID_EX_regwrite <= 0;
      else
-       if (EX_MEM_flush) ID_EX_regwrite <= 0;
+       if (EX_MEM_flush || ID_EX_branch) ID_EX_regwrite <= 0;
        else
          if (EX_MEM_stall) ID_EX_regwrite <= ID_EX_regwrite;
          else
@@ -106,7 +106,7 @@ module ID_EX_reg(
      if (reset)
        ID_EX_imme <= 0;
      else
-       if (EX_MEM_flush) ID_EX_imme <= ID_imme;
+       if (EX_MEM_flush || ID_EX_branch) ID_EX_imme <= ID_imme;
        else
          if (EX_MEM_stall) ID_EX_imme <= ID_EX_imme;
          else
@@ -116,7 +116,7 @@ module ID_EX_reg(
      if (reset)
        ID_EX_rs1 <= 0;
      else
-       if (EX_MEM_flush)
+       if (EX_MEM_flush || ID_EX_branch)
          ID_EX_rs1 <= 0;
        else
          if (EX_MEM_stall)
@@ -128,7 +128,7 @@ module ID_EX_reg(
      if (reset)
        ID_EX_rs1_data <= 0;
      else
-       if (EX_MEM_flush)
+       if (EX_MEM_flush || ID_EX_branch)
          ID_EX_rs1_data <= 0;
        else
          if (EX_MEM_stall)
@@ -140,7 +140,7 @@ module ID_EX_reg(
      if (reset)
        ID_EX_rs2 <= 0;
      else
-       if (EX_MEM_flush)
+       if (EX_MEM_flush || ID_EX_branch)
          ID_EX_rs2 <= 0;
        else
          if (EX_MEM_stall)
@@ -152,7 +152,7 @@ module ID_EX_reg(
      if (reset)
        ID_EX_rs2_data <= 0;
      else
-       if (EX_MEM_flush)
+       if (EX_MEM_flush || ID_EX_branch)
          ID_EX_rs2_data <= 0;
        else
          if (EX_MEM_stall)
@@ -165,7 +165,7 @@ module ID_EX_reg(
      if (reset)
        ID_EX_rd <= 0;
      else
-       if (EX_MEM_flush)
+       if (EX_MEM_flush || ID_EX_branch)
          ID_EX_rd <= 0;
        else
          if (EX_MEM_stall)
@@ -177,7 +177,7 @@ module ID_EX_reg(
      if (reset)
        ID_EX_take <= 0;
      else
-       if (EX_MEM_flush)
+       if (EX_MEM_flush || ID_EX_branch)
          ID_EX_take <= 0; // It may be not important to flush this signal
        else
          if (EX_MEM_stall)

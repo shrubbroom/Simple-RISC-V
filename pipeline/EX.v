@@ -28,12 +28,11 @@ module EX#(
               output reg        EX_zero,
               output reg [4:0]  EX_rd,
               output            EX_stall,
-              output            EX_branch,
+              output reg        EX_branch,
               output reg        EX_memread,
               output reg        EX_memtoreg,
               output reg        EX_memwrite,
               output reg        EX_regwrite,
-              output reg [31:0] EX_rs1_data,
               output reg [31:0] EX_rs2_data,
               output reg        EX_take,
               /*AUTOINPUT*/
@@ -49,10 +48,10 @@ module EX#(
               );
    /*AUTOWIRE*/
    // Beginning of automatic wires (for undeclared instantiated-module outputs)
-   wire [31:0]          EX_hazard_rs1_data;     // From EX_hazard_checker of EX_hazard_checker.v
-   wire                 EX_hazard_rs1_data_enable;// From EX_hazard_checker of EX_hazard_checker.v
-   wire [31:0]          EX_hazard_rs2_data;     // From EX_hazard_checker of EX_hazard_checker.v
-   wire                 EX_hazard_rs2_data_enable;// From EX_hazard_checker of EX_hazard_checker.v
+   wire [31:0]                  EX_hazard_rs1_data;     // From EX_hazard_checker of EX_hazard_checker.v
+   wire                         EX_hazard_rs1_data_enable;// From EX_hazard_checker of EX_hazard_checker.v
+   wire [31:0]                  EX_hazard_rs2_data;     // From EX_hazard_checker of EX_hazard_checker.v
+   wire                         EX_hazard_rs2_data_enable;// From EX_hazard_checker of EX_hazard_checker.v
    // End of automatics
    EX_hazard_checker EX_hazard_checker(/*AUTOINST*/
                                        // Outputs
@@ -72,19 +71,21 @@ module EX#(
                                        .MEM_WB_result   (MEM_WB_result[31:0]),
                                        .MEM_WB_regwrite (MEM_WB_regwrite),
                                        .ID_EX_alusrc    (ID_EX_alusrc));
-   // reg [31:0]                   EX_rs1_data;
+   reg [31:0]                   EX_rs1_data;
    // reg [31:0]                   EX_rs2_data;
-   always @ *
-     if (ID_EX_alusrc) EX_rs1_data = ID_EX_imme;
-     else
-       if (EX_hazard_rs1_data_enable) EX_rs1_data = EX_hazard_rs1_data;
-       else
-         EX_rs1_data = ID_EX_rs1_data;
 
    always @ *
-     if (EX_hazard_rs2_data_enable) EX_rs2_data = EX_hazard_rs2_data;
+     if (EX_hazard_rs1_data_enable) EX_rs1_data = EX_hazard_rs1_data;
      else
-       EX_rs2_data = ID_EX_rs2_data;
+       EX_rs1_data = ID_EX_rs1_data;
+
+   always @ *
+     if (ID_EX_alusrc) EX_rs2_data = ID_EX_imme;
+     else
+       if (EX_hazard_rs2_data_enable) EX_rs2_data = EX_hazard_rs2_data;
+       else
+         EX_rs2_data = ID_EX_rs2_data;
+
 
    always @ *
      case (ID_EX_aluop)

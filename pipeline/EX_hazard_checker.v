@@ -37,8 +37,8 @@ module EX_hazard_checker#(
 
    always @ * begin
       if (ID_EX_alusrc) begin
-         EX_rs1_data_enable_internal = 1;
          EX_rs1_data_internal = 0;
+         EX_rs1_data_enable_internal = 0;
       end else begin
          if (EX_MEM_rd == ID_EX_rs1 && EX_MEM_regwrite) begin
             EX_rs1_data_internal = EX_MEM_ALU_result;
@@ -57,8 +57,8 @@ module EX_hazard_checker#(
 
    always @ * begin
       if (ID_EX_alusrc) begin
-         EX_rs2_data_enable_internal = 1;
          EX_rs2_data_internal = 0;
+         EX_rs2_data_enable_internal = 0;
       end else begin
          if (EX_MEM_rd == ID_EX_rs2 && EX_MEM_regwrite) begin
             EX_rs2_data_internal = EX_MEM_ALU_result;

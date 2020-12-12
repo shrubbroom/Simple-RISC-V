@@ -11,7 +11,6 @@ module EX_MEM_reg(
                   input             EX_stall,
                   input             EX_memread,
                   input             EX_memwrite,
-                  input [31:0]      EX_rs1_data,
                   input [31:0]      EX_rs2_data,
                   output reg [31:0] EX_MEM_ALU_result,
                   output reg        EX_MEM_branch,
@@ -51,8 +50,8 @@ module EX_MEM_reg(
        if (EX_MEM_stall)
          EX_MEM_flush <= 0; // insert a NOPE
        else
-         if (EX_take == EX_zero) EX_MEM_flush <= 0;
-         else EX_MEM_flush <= 1;
+         if (EX_branch && EX_take != EX_zero) EX_MEM_flush <= 1;
+         else EX_MEM_flush <= 0;
 
    always @ (posedge clk or negedge reset)
      if (reset)

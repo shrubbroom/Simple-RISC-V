@@ -59,12 +59,17 @@ module IF #(
                         pc <= pc_jmp + 4;
                         pc_take <= 0;
                      end
-                end
+                end // if (pc_prediction_table_valid[pc_jmp[9:0]] &&...
               else begin
                  pc <= pc_jmp + ID_EX_imme; // always jump if there is no record for current pc
                  pc_take <= 1;
-              end
-           end
+              end // else: !if(pc_prediction_table_valid[pc_jmp[9:0]] &&...
+           end // if (ID_EX_branch)
+           else begin
+              pc <= pc + 4;
+              pc_stash_base <= pc_stash_base;
+              pc_stash_imme <= pc_stash_imme;
+           end // else: !if(ID_EX_branch)
 
    always @ (posedge clk or posedge reset)
      if (reset)

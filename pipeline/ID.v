@@ -8,11 +8,16 @@ module ID #(
             )(
               input [31:0]      IF_ID_instruction,
               input             IF_ID_take,
+              input [4:0]       MEM_WB_rd,
+              input [31:0]      MEM_WB_result,
+              input             MEM_WB_regwrite,
+              input [31:0]      reg_read_data_1,
+              input [31:0]      reg_read_data_2,
               output reg        ID_branch,
               output reg        ID_memread,
               output reg        ID_memtoreg,
               // output wire [1:0]  ID_aluop,
-              output reg [3:0]  ID_aluop,
+              output [3:0]      ID_aluop,
               output reg        ID_memwrite,
               output reg        ID_alusrc,
               output reg        ID_regwrite,
@@ -20,7 +25,9 @@ module ID #(
               output reg [4:0]  ID_rs1,
               output reg [4:0]  ID_rs2,
               output reg [4:0]  ID_rd,
-              output reg        ID_take
+              output reg        ID_take,
+              output reg [31:0] ID_rs1_data,
+              output reg [31:0] ID_rs2_data
               );
 
 
@@ -130,4 +137,17 @@ module ID #(
 
    always @ *
      ID_take = IF_ID_take;
+
+   /*hazard resolve*/
+   always @ *
+     if (MEM_WB_rd == ID_rs1 && MEM_WB_regwrite)
+       ID_rs1_data = MEM_WB_result;
+     else
+       ID_rs1_data = reg_read_data_1;
+
+   always @ *
+     if (MEM_WB_rd == ID_rs2 && MEM_WB_regwrite)
+       ID_rs2_data = MEM_WB_result;
+     else
+       ID_rs2_data = reg_read_data_2;
 endmodule

@@ -35,6 +35,7 @@ module EX#(
               output reg        EX_regwrite,
               output reg [31:0] EX_rs2_data,
               output reg        EX_take,
+              output reg        EX_flush,
               /*AUTOINPUT*/
               // Beginning of automatic inputs (from unused autoinst inputs)
               input [31:0]      EX_MEM_ALU_result, // To EX_hazard_checker of EX_hazard_checker.v
@@ -127,5 +128,8 @@ module EX#(
 
    always @ *
      EX_take = ID_EX_take;
+
+   always @ *
+     EX_flush = EX_branch && (EX_take != EX_zero);
 
 endmodule // EX

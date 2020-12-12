@@ -22,8 +22,6 @@ module riscv(
    // Beginning of automatic wires (for undeclared instantiated-module outputs)
    wire [31:0]          EX_ALU_result;          // From EX of EX.v
    wire [31:0]          EX_MEM_ALU_result;      // From EX_MEM_reg of EX_MEM_reg.v
-   wire                 EX_MEM_branch;          // From EX_MEM_reg of EX_MEM_reg.v
-   wire                 EX_MEM_flush;           // From EX_MEM_reg of EX_MEM_reg.v
    wire                 EX_MEM_memread;         // From EX_MEM_reg of EX_MEM_reg.v
    wire                 EX_MEM_memtoreg;        // From EX_MEM_reg of EX_MEM_reg.v
    wire                 EX_MEM_memwrite;        // From EX_MEM_reg of EX_MEM_reg.v
@@ -31,8 +29,8 @@ module riscv(
    wire                 EX_MEM_regwrite;        // From EX_MEM_reg of EX_MEM_reg.v
    wire [31:0]          EX_MEM_rs2_data;        // From EX_MEM_reg of EX_MEM_reg.v
    wire                 EX_MEM_stall;           // From EX_MEM_reg of EX_MEM_reg.v
-   wire                 EX_MEM_zero;            // From EX_MEM_reg of EX_MEM_reg.v
    wire                 EX_branch;              // From EX of EX.v
+   wire                 EX_flush;               // From EX of EX.v
    wire                 EX_memread;             // From EX of EX.v
    wire                 EX_memtoreg;            // From EX of EX.v
    wire                 EX_memwrite;            // From EX of EX.v
@@ -118,12 +116,12 @@ module riscv(
          // Inputs
          .clk                           (clk),
          .reset                         (reset),
-         .ID_EX_branch                  (ID_EX_branch),
-         .EX_MEM_zero                   (EX_MEM_zero),
-         .EX_MEM_branch                 (EX_MEM_branch),
-         .EX_MEM_flush                  (EX_MEM_flush),
+         .ID_branch                     (ID_branch),
+         .EX_zero                       (EX_zero),
+         .EX_branch                     (EX_branch),
+         .EX_flush                      (EX_flush),
          .EX_MEM_stall                  (EX_MEM_stall),
-         .ID_EX_imme                    (ID_EX_imme[31:0]));
+         .ID_imme                       (ID_imme[31:0]));
    IF_ID_reg IF_ID_reg(/*AUTOINST*/
                        // Outputs
                        .IF_ID_instruction(IF_ID_instruction[31:0]),
@@ -132,10 +130,9 @@ module riscv(
                        .clk             (clk),
                        .reset           (reset),
                        .inst_mem_read_data(inst_mem_read_data[31:0]),
-                       .EX_MEM_flush    (EX_MEM_flush),
+                       .EX_flush        (EX_flush),
                        .EX_MEM_stall    (EX_MEM_stall),
-                       .IF_take         (IF_take),
-                       .ID_EX_branch    (ID_EX_branch));
+                       .IF_take         (IF_take));
    ID ID(/*AUTOINST*/
          // Outputs
          .ID_branch                     (ID_branch),
@@ -179,8 +176,8 @@ module riscv(
                        // Inputs
                        .clk             (clk),
                        .reset           (reset),
-                       .EX_MEM_flush    (EX_MEM_flush),
-                       .EX_MEM_stall    (EX_MEM_stall),
+                       .EX_flush        (EX_flush),
+                       .EX_stall        (EX_stall),
                        .ID_branch       (ID_branch),
                        .ID_memread      (ID_memread),
                        .ID_memtoreg     (ID_memtoreg),
@@ -208,6 +205,7 @@ module riscv(
          .EX_regwrite                   (EX_regwrite),
          .EX_rs2_data                   (EX_rs2_data[31:0]),
          .EX_take                       (EX_take),
+         .EX_flush                      (EX_flush),
          // Inputs
          .ID_EX_rs1                     (ID_EX_rs1[4:0]),
          .ID_EX_rs1_data                (ID_EX_rs1_data[31:0]),
@@ -233,13 +231,10 @@ module riscv(
    EX_MEM_reg EX_MEM_reg(/*AUTOINST*/
                          // Outputs
                          .EX_MEM_ALU_result     (EX_MEM_ALU_result[31:0]),
-                         .EX_MEM_branch         (EX_MEM_branch),
-                         .EX_MEM_flush          (EX_MEM_flush),
                          .EX_MEM_memtoreg       (EX_MEM_memtoreg),
                          .EX_MEM_rd             (EX_MEM_rd[4:0]),
                          .EX_MEM_regwrite       (EX_MEM_regwrite),
                          .EX_MEM_stall          (EX_MEM_stall),
-                         .EX_MEM_zero           (EX_MEM_zero),
                          .EX_MEM_memread        (EX_MEM_memread),
                          .EX_MEM_memwrite       (EX_MEM_memwrite),
                          .EX_MEM_rs2_data       (EX_MEM_rs2_data[31:0]),

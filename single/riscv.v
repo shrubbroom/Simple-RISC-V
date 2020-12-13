@@ -110,6 +110,7 @@ module riscv(
          .imme                          (imme[31:0]),
          .Controller_alusrc             (Controller_alusrc),
          .Controller_aluop              (Controller_aluop[3:0]),
+         .Controller_memwrite           (Controller_memwrite),
          .ID_kick_up                    (ID_kick_up));
    WB WB(/*AUTOINST*/
          // Outputs

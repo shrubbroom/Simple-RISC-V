@@ -7,7 +7,7 @@ module ID #(
             parameter OP_MEMORY_STORE =  7'b0100011
             )(
               input [31:0]      IF_ID_instruction,
-              input             IF_ID_take,
+              // input             IF_ID_take,
               input [4:0]       MEM_WB_rd,
               input [31:0]      MEM_WB_result,
               input             MEM_WB_regwrite,
@@ -25,7 +25,7 @@ module ID #(
               output reg [4:0]  ID_rs1,
               output reg [4:0]  ID_rs2,
               output reg [4:0]  ID_rd,
-              output reg        ID_take,
+              // output reg        ID_take,
               output reg [31:0] ID_rs1_data,
               output reg [31:0] ID_rs2_data
               );
@@ -135,8 +135,8 @@ module ID #(
    always @ *
      ID_rd = IF_ID_instruction[11:7];
 
-   always @ *
-     ID_take = IF_ID_take;
+   // always @ *
+   //   ID_take = IF_ID_take;
 
    /*hazard resolve*/
    always @ *

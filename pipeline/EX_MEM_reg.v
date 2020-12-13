@@ -2,9 +2,9 @@ module EX_MEM_reg(
                   input             clk,
                   input             reset,
                   input [31:0]      EX_ALU_result,
-                  input             EX_branch,
-                  input             EX_zero,
-                  input             EX_take,
+                  // input             EX_branch,
+                  // input             EX_zero,
+                  // input             EX_take,
                   input             EX_memtoreg,
                   input [4:0]       EX_rd,
                   input             EX_regwrite,
@@ -18,7 +18,7 @@ module EX_MEM_reg(
                   output reg        EX_MEM_memtoreg,
                   output reg [4:0]  EX_MEM_rd,
                   output reg        EX_MEM_regwrite,
-                  output reg        EX_MEM_stall,
+                  // output reg        EX_stall,
                   // output reg        EX_MEM_zero,
                   output reg        EX_MEM_memread,
                   output reg        EX_MEM_memwrite,
@@ -29,7 +29,7 @@ module EX_MEM_reg(
      if (reset)
        EX_MEM_ALU_result <= 0;
      else
-       if (EX_MEM_stall)
+       if (EX_stall)
          EX_MEM_ALU_result <= 0; // insert a NOPE
        else
          EX_MEM_ALU_result <= EX_ALU_result;
@@ -38,7 +38,7 @@ module EX_MEM_reg(
    //   if (reset)
    //     EX_MEM_branch <= 0;
    //   else
-   //     if (EX_MEM_stall)
+   //     if (EX_stall)
    //       EX_MEM_branch <= 0; // insert a NOPE
    //     else
    //       EX_MEM_branch <= EX_branch;
@@ -47,7 +47,7 @@ module EX_MEM_reg(
    //   if (reset)
    //     EX_MEM_flush <= 0;
    //   else
-   //     if (EX_MEM_stall)
+   //     if (EX_stall)
    //       EX_MEM_flush <= 0; // insert a NOPE
    //     else
    //       if (EX_branch && EX_take != EX_zero) EX_MEM_flush <= 1;
@@ -57,7 +57,7 @@ module EX_MEM_reg(
      if (reset)
        EX_MEM_memtoreg <= 0;
      else
-       if (EX_MEM_stall)
+       if (EX_stall)
          EX_MEM_memtoreg <= 0; // insert a NOPE
        else
          EX_MEM_memtoreg <= EX_memtoreg;
@@ -66,7 +66,7 @@ module EX_MEM_reg(
      if (reset)
        EX_MEM_rd <= 0;
      else
-       if (EX_MEM_stall)
+       if (EX_stall)
          EX_MEM_rd <= 0; // insert a NOPE
        else
          EX_MEM_rd <= EX_rd;
@@ -75,7 +75,7 @@ module EX_MEM_reg(
      if (reset)
        EX_MEM_regwrite <= 0;
      else
-       if (EX_MEM_stall)
+       if (EX_stall)
          EX_MEM_regwrite <= 0; // insert a NOPE
        else
          EX_MEM_regwrite <= EX_regwrite;
@@ -84,25 +84,16 @@ module EX_MEM_reg(
    //   if (reset)
    //     EX_MEM_zero <= 0;
    //   else
-   //     if (EX_MEM_stall)
+   //     if (EX_stall)
    //       EX_MEM_zero <= 0; // insert a NOPE
    //     else
    //       EX_MEM_zero <= EX_zero;
 
    always @ (posedge clk or negedge reset)
      if (reset)
-       EX_MEM_stall <= 0;
-     else
-       if (EX_MEM_stall)
-         EX_MEM_stall <= 0; // insert a NOPE
-       else
-         EX_MEM_stall <= EX_stall;
-
-   always @ (posedge clk or negedge reset)
-     if (reset)
        EX_MEM_memwrite <= 0;
      else
-       if (EX_MEM_stall)
+       if (EX_stall)
          EX_MEM_memwrite <= 0; // insert a NOPE
        else
          EX_MEM_memwrite <= EX_memwrite;
@@ -112,7 +103,7 @@ module EX_MEM_reg(
      if (reset)
        EX_MEM_memread <= 0;
      else
-       if (EX_MEM_stall)
+       if (EX_stall)
          EX_MEM_memread <= 0; // insert a NOPE
        else
          EX_MEM_memread <= EX_memread;
@@ -121,7 +112,7 @@ module EX_MEM_reg(
    //   if (reset)
    //     EX_MEM_rs1_data <= 0;
    //   else
-   //     if (EX_MEM_stall)
+   //     if (EX_stall)
    //       EX_MEM_rs1_data <= 0; // insert a NOPE
    //     else
    //       EX_MEM_rs1_data <= EX_rs1_data;
@@ -130,7 +121,7 @@ module EX_MEM_reg(
      if (reset)
        EX_MEM_rs2_data <= 0;
      else
-       if (EX_MEM_stall)
+       if (EX_stall)
          EX_MEM_rs2_data <= 0; // insert a NOPE
        else
          EX_MEM_rs2_data <= EX_rs2_data;

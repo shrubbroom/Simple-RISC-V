@@ -18,15 +18,21 @@ module EX
     input wire [31:0]  imme,
     input wire         Controller_alusrc,
     input wire [3:0]   Controller_aluop,
+    input wire         Controller_memwrite,
     input wire         ID_kick_up,
     output wire [31:0] ALU_result,
     output wire        ALU_zero,
     output wire        ALU_kick_up
     );
    wire [31:0]         ALU_op_1;
-   wire [31:0]         ALU_op_2;
+   reg [31:0]         ALU_op_2;
    assign ALU_op_1 = reg_read_data_1;
-   assign ALU_op_2 = Controller_alusrc?imme:reg_read_data_2;
+   always @ *
+     if (Controller_alusrc && (~Controller_memwrite))
+       ALU_op_2 = imme;
+     else
+       ALU_op_2 = reg_read_data_2;
+   // assign ALU_op_2 = Controller_alusrc?imme:reg_read_data_2;
    assign ALU_zero = (ALU_result == 0);
    reg [31:0]          ALU_result_internal;
    always @ (posedge clk or posedge reset)

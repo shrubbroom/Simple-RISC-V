@@ -9,8 +9,7 @@ module IF #(
                input         ID_branch,
                input         EX_zero,
                input         EX_branch,
-               input         EX_flush,
-               input         EX_MEM_stall, // load-use stall
+               input         EX_stall, // load-use stall
                input [31:0]  ID_imme,
                output [31:0] inst_mem_read_addr,
                output        inst_mem_read_enable,
@@ -35,12 +34,14 @@ module IF #(
      if (reset)
        pc <= 0;
      else
-       if (EX_MEM_stall) begin
+       if (EX_stall) begin
           pc <= pc; // fatal hazard, e.g. use after load
        end else
-         if (EX_flush) begin
-            if(pc_take) pc <= pc_stash_base + 4;
-            else pc <= pc_stash_base + pc_stash_imme; // two continuous JMP
+         if (EX_branch) begin
+            if (pc_take == EX_zero) pc <= pc + 4;
+            else
+              if(pc_take) pc <= pc_stash_base + 4;
+              else pc <= pc_stash_base + pc_stash_imme;
          end
          else
            if (ID_branch) begin

@@ -23,7 +23,7 @@ module EX#(
               input wire        ID_EX_memtoreg,
               input wire        ID_EX_memwrite,
               input wire        ID_EX_regwrite,
-              input wire        ID_EX_take,
+              // input wire        ID_EX_take,
               output reg [31:0] EX_ALU_result,
               output reg        EX_zero,
               output reg [4:0]  EX_rd,
@@ -34,25 +34,25 @@ module EX#(
               output reg        EX_memwrite,
               output reg        EX_regwrite,
               output reg [31:0] EX_rs2_data,
-              output reg        EX_take,
-              output reg        EX_flush,
+              // output reg        EX_take,
+              // output reg        EX_flush,
               /*AUTOINPUT*/
               // Beginning of automatic inputs (from unused autoinst inputs)
-              input [31:0]      EX_MEM_ALU_result, // To EX_hazard_checker of EX_hazard_checker.v
-              input             EX_MEM_memtoreg, // To EX_hazard_checker of EX_hazard_checker.v
-              input [4:0]       EX_MEM_rd, // To EX_hazard_checker of EX_hazard_checker.v
-              input             EX_MEM_regwrite, // To EX_hazard_checker of EX_hazard_checker.v
-              input [4:0]       MEM_WB_rd, // To EX_hazard_checker of EX_hazard_checker.v
-              input             MEM_WB_regwrite, // To EX_hazard_checker of EX_hazard_checker.v
-              input [31:0]      MEM_WB_result          // To EX_hazard_checker of EX_hazard_checker.v
+              input [31:0]    EX_MEM_ALU_result,      // To EX_hazard_checker of EX_hazard_checker.v
+              input           EX_MEM_memtoreg,        // To EX_hazard_checker of EX_hazard_checker.v
+              input [4:0]     EX_MEM_rd,              // To EX_hazard_checker of EX_hazard_checker.v
+              input           EX_MEM_regwrite,        // To EX_hazard_checker of EX_hazard_checker.v
+              input [4:0]     MEM_WB_rd,              // To EX_hazard_checker of EX_hazard_checker.v
+              input           MEM_WB_regwrite,        // To EX_hazard_checker of EX_hazard_checker.v
+              input [31:0]    MEM_WB_result          // To EX_hazard_checker of EX_hazard_checker.v
               // End of automatics
               );
    /*AUTOWIRE*/
    // Beginning of automatic wires (for undeclared instantiated-module outputs)
-   wire [31:0]                  EX_hazard_rs1_data;     // From EX_hazard_checker of EX_hazard_checker.v
-   wire                         EX_hazard_rs1_data_enable;// From EX_hazard_checker of EX_hazard_checker.v
-   wire [31:0]                  EX_hazard_rs2_data;     // From EX_hazard_checker of EX_hazard_checker.v
-   wire                         EX_hazard_rs2_data_enable;// From EX_hazard_checker of EX_hazard_checker.v
+   wire [31:0]          EX_hazard_rs1_data;     // From EX_hazard_checker of EX_hazard_checker.v
+   wire                 EX_hazard_rs1_data_enable;// From EX_hazard_checker of EX_hazard_checker.v
+   wire [31:0]          EX_hazard_rs2_data;     // From EX_hazard_checker of EX_hazard_checker.v
+   wire                 EX_hazard_rs2_data_enable;// From EX_hazard_checker of EX_hazard_checker.v
    // End of automatics
    EX_hazard_checker EX_hazard_checker(/*AUTOINST*/
                                        // Outputs
@@ -70,10 +70,12 @@ module EX#(
                                        .EX_MEM_memtoreg (EX_MEM_memtoreg),
                                        .MEM_WB_rd       (MEM_WB_rd[4:0]),
                                        .MEM_WB_result   (MEM_WB_result[31:0]),
-                                       .MEM_WB_regwrite (MEM_WB_regwrite),
-                                       .ID_EX_alusrc    (ID_EX_alusrc));
+                                       .MEM_WB_regwrite (MEM_WB_regwrite));
    reg [31:0]                   EX_rs1_data;
    // reg [31:0]                   EX_rs2_data;
+
+   reg [31:0]                   EX_op1_data;
+   reg [31:0]                   EX_op2_data;
 
    always @ *
      if (EX_hazard_rs1_data_enable) EX_rs1_data = EX_hazard_rs1_data;
@@ -81,24 +83,36 @@ module EX#(
        EX_rs1_data = ID_EX_rs1_data;
 
    always @ *
-     if (ID_EX_alusrc) EX_rs2_data = ID_EX_imme;
-     else
+     // if (ID_EX_alusrc)
+     //   if (ID_EX_memwrite) // SW
+     //     EX_rs2_data = ID_EX_rs2_data;
+     //   else
+     //     EX_rs2_data = ID_EX_imme;
+     // else
        if (EX_hazard_rs2_data_enable) EX_rs2_data = EX_hazard_rs2_data;
        else
          EX_rs2_data = ID_EX_rs2_data;
 
+   always @ *
+     EX_op1_data = EX_rs1_data;
+
+   always @ *
+     if (ID_EX_alusrc)
+       EX_op2_data = ID_EX_imme;
+     else
+       EX_op2_data = EX_rs2_data;
 
    always @ *
      case (ID_EX_aluop)
-       ALU_OP_ADD : EX_ALU_result = EX_rs1_data + EX_rs2_data;
-       ALU_OP_SUB : EX_ALU_result = EX_rs1_data - EX_rs2_data;
-       ALU_OP_AND : EX_ALU_result = EX_rs1_data & EX_rs2_data;
-       ALU_OP_OR : EX_ALU_result = EX_rs1_data | EX_rs2_data;
-       ALU_OP_XOR : EX_ALU_result = EX_rs1_data ^ EX_rs2_data;
-       ALU_OP_LT : EX_ALU_result = ($signed(EX_rs1_data) < $signed(EX_rs2_data))?32'b0:32'b1;
+       ALU_OP_ADD : EX_ALU_result = EX_op1_data + EX_op2_data;
+       ALU_OP_SUB : EX_ALU_result = EX_op1_data - EX_op2_data;
+       ALU_OP_AND : EX_ALU_result = EX_op1_data & EX_op2_data;
+       ALU_OP_OR : EX_ALU_result = EX_op1_data | EX_op2_data;
+       ALU_OP_XOR : EX_ALU_result = EX_op1_data ^ EX_op2_data;
+       ALU_OP_LT : EX_ALU_result = ($signed(EX_op1_data) < $signed(EX_op2_data))?32'b0:32'b1;
        ALU_OP_JUMP : EX_ALU_result = 32'b0;
-       ALU_OP_SHIFT_LEFT : EX_ALU_result = (EX_rs1_data << EX_rs2_data[4:0]);
-       ALU_OP_SHIFT_RIGHT : EX_ALU_result = (EX_rs1_data >> EX_rs2_data[4:0]);
+       ALU_OP_SHIFT_LEFT : EX_ALU_result = (EX_op1_data << EX_op2_data[4:0]);
+       ALU_OP_SHIFT_RIGHT : EX_ALU_result = (EX_op1_data >> EX_op2_data[4:0]);
        ALU_OP_NOPE : EX_ALU_result = 32'b0;
        default : EX_ALU_result = 0;
      endcase // case (ID_EX_aluop)
@@ -126,10 +140,10 @@ module EX#(
    always @ *
      EX_branch = ID_EX_branch;
 
-   always @ *
-     EX_take = ID_EX_take;
+   // always @ *
+   //   EX_take = ID_EX_take;
 
-   always @ *
-     EX_flush = EX_branch && (EX_take != EX_zero);
+   // always @ *
+   //   EX_flush = EX_branch && (EX_take != EX_zero);
 
 endmodule // EX

@@ -16,7 +16,6 @@ module EX_hazard_checker#(
                              input wire [4:0]   MEM_WB_rd, // rd in MEM_WB_reg
                              input wire [31:0]  MEM_WB_result, // result in MEM_WB_reg, this result can be ALU result (if this is not a mem operation) or MEM read result (is this is 'memtoreg' operation)
                              input wire         MEM_WB_regwrite,
-                             input wire         ID_EX_alusrc,
                              output wire        EX_stall,
                              output wire [31:0] EX_hazard_rs1_data,
                              output             EX_hazard_rs1_data_enable,
@@ -36,41 +35,31 @@ module EX_hazard_checker#(
    assign EX_stall = EX_stall_internal;
 
    always @ * begin
-      if (ID_EX_alusrc) begin
-         EX_rs1_data_internal = 0;
-         EX_rs1_data_enable_internal = 0;
+      if (EX_MEM_rd == ID_EX_rs1 && EX_MEM_regwrite) begin
+         EX_rs1_data_internal = EX_MEM_ALU_result;
+         EX_rs1_data_enable_internal = 1;
       end else begin
-         if (EX_MEM_rd == ID_EX_rs1 && EX_MEM_regwrite) begin
-            EX_rs1_data_internal = EX_MEM_ALU_result;
+         if (MEM_WB_rd == ID_EX_rs1 && MEM_WB_regwrite) begin
+            EX_rs1_data_internal = MEM_WB_result;
             EX_rs1_data_enable_internal = 1;
          end else begin
-            if (MEM_WB_rd == ID_EX_rs1 & MEM_WB_regwrite) begin
-               EX_rs1_data_internal = MEM_WB_result;
-               EX_rs1_data_enable_internal = 1;
-            end else begin
-               EX_rs1_data_internal =0;
-               EX_rs1_data_enable_internal = 0;
-            end
+            EX_rs1_data_internal =0;
+            EX_rs1_data_enable_internal = 0;
          end
       end
    end
 
    always @ * begin
-      if (ID_EX_alusrc) begin
-         EX_rs2_data_internal = 0;
-         EX_rs2_data_enable_internal = 0;
+      if (EX_MEM_rd == ID_EX_rs2 && EX_MEM_regwrite) begin
+         EX_rs2_data_internal = EX_MEM_ALU_result;
+         EX_rs2_data_enable_internal = 1;
       end else begin
-         if (EX_MEM_rd == ID_EX_rs2 && EX_MEM_regwrite) begin
-            EX_rs2_data_internal = EX_MEM_ALU_result;
+         if (MEM_WB_rd == ID_EX_rs2 && MEM_WB_regwrite) begin
+            EX_rs2_data_internal = MEM_WB_result;
             EX_rs2_data_enable_internal = 1;
          end else begin
-            if (MEM_WB_rd == ID_EX_rs2 & MEM_WB_regwrite) begin
-               EX_rs2_data_internal = MEM_WB_result;
-               EX_rs2_data_enable_internal = 1;
-            end else begin
-               EX_rs2_data_internal =0;
-               EX_rs2_data_enable_internal = 0;
-            end
+            EX_rs2_data_internal =0;
+            EX_rs2_data_enable_internal = 0;
          end
       end
    end

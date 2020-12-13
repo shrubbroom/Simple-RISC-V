@@ -12,10 +12,13 @@ module riscv_soc_tb();
    end
 
    initial begin
+      $dumpfile("riscv_soc_tb.vcd");
+      $dumpvars(0, riscv_soc_tb);
       rst = 1'b1;
       #300    rst= 1'b0;
       #100000 $display("---     result is %d         ---\n", verify);
-      #1000   $stop;
+      #1000 $finish;
+      // #1000   $stop;
    end
 
    wire[31:0] inst_addr;

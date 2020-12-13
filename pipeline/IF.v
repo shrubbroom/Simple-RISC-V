@@ -40,7 +40,7 @@ module IF #(
        end else
          if (EX_flush) begin
             if(pc_take) pc <= pc_stash_base + 4;
-            else pc <= pc_stash_base + pc_stash_imme;
+            else pc <= pc_stash_base + pc_stash_imme; // two continuous JMP
          end
          else
            if (ID_branch) begin

@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up Yosys
-      run: apt install yosys -y
+      run: sudo apt-get install yosys -y
     - name: cd pipeline
       run: cd ./pipeline
     - name: Run tests

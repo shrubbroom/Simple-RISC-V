@@ -25,7 +25,7 @@ module EX_MEM_reg(
                   // output reg [31:0] EX_MEM_rs1_data,
                   output reg [31:0] EX_MEM_rs2_data
                   );
-   always @ (posedge clk or posedge reset)
+   always @ (posedge clk or negedge reset)
      if (reset)
        EX_MEM_ALU_result <= 0;
      else

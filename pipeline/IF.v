@@ -127,5 +127,4 @@ module IF #(
            end
          endcase // case ({EX_zero,pc_prediction_table_valid[pc_stash_base[9:0]] == 0})
        else begin end
-
 endmodule

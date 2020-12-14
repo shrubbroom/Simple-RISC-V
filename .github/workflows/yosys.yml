@@ -14,4 +14,4 @@ jobs:
     - name: Set up Yosys
       run: sudo apt-get install yosys -y
     - name: Run tests
-      run: yosys -p "hierarchy -check; proc" ./pipeline/riscv.v
+      run: yosys -p "hierarchy -check; proc; opt; fsm; opt" ./pipeline/riscv.v

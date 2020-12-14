@@ -1,0 +1,19 @@
+name: Yosys
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Yosys
+      run: apt install yosys -y
+    - name: cd pipeline
+      run: cd ./pipeline
+    - name: Run tests
+      run: yosys -p "hierarchy -check; proc" riscv.v

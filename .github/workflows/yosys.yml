@@ -13,7 +13,5 @@ jobs:
     - uses: actions/checkout@v2
     - name: Set up Yosys
       run: sudo apt-get install yosys -y
-    - name: cd pipeline
-      run: cd ./pipeline
     - name: Run tests
-      run: yosys -p "hierarchy -check; proc" riscv.v
+      run: yosys -p "hierarchy -check; proc" ./pipeline/riscv.v

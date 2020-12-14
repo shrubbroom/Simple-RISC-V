@@ -25,7 +25,7 @@ module IF_ID_reg(
          else
            IF_ID_instruction <= inst_mem_read_data;
 
-   // always @ (posedge clk or negedge reset)
+   // always @ (posedge clk or posedge reset)
    //   if (reset) IF_ID_take <= 0;
    //   else IF_ID_take <= IF_take; // it is not important to flush or stall this signal
 

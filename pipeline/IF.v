@@ -7,8 +7,10 @@ module IF #(
                input         clk,
                input         reset,
                input         ID_branch,
+               input         ID_unconditional_jmp,
                input         EX_zero,
                input         EX_branch,
+               input         EX_unconditional_jmp,
                input         EX_stall, // load-use stall
                input [31:0]  ID_imme,
                output [31:0] inst_mem_read_addr,
@@ -37,14 +39,14 @@ module IF #(
        if (EX_stall) begin
           pc <= pc; // fatal hazard, e.g. use after load
        end else
-         if (EX_branch) begin
+         if (EX_branch && !EX_unconditional_jmp) begin
             if (pc_take == EX_zero) pc <= pc + 4;
             else
               if(pc_take) pc <= pc_stash_base + 4;
               else pc <= pc_stash_base + pc_stash_imme;
          end
          else
-           if (ID_branch) begin
+           if (ID_branch && !ID_unconditional_jmp) begin
               pc_stash_base <= pc_jmp;
               pc_stash_imme <= ID_imme;
               if (pc_prediction_table_valid[pc_jmp[9:0]] &&
@@ -67,9 +69,16 @@ module IF #(
               end // else: !if(pc_prediction_table_valid[pc_jmp[9:0]] &&...
            end // if (ID_branch)
            else begin
-              pc <= pc + 4;
-              pc_stash_base <= pc_stash_base;
-              pc_stash_imme <= pc_stash_imme;
+              if (ID_unconditional_jmp) begin
+                 pc <= pc + ID_imme;
+                 pc_stash_base <= pc_stash_base;
+                 pc_stash_imme <= pc_stash_imme;
+              end
+              else begin
+                 pc <= pc + 4;
+                 pc_stash_base <= pc_stash_base;
+                 pc_stash_imme <= pc_stash_imme;
+              end
            end // else: !if(ID_branch)
 
    always @ (posedge clk or posedge reset)
@@ -78,7 +87,7 @@ module IF #(
           pc_prediction_table_valid[i] = 0;
        end
      else
-       if (EX_branch)
+       if (EX_branch && !EX_unconditional_jmp)
          case ({EX_zero,pc_prediction_table_valid[pc_stash_base[9:0]] == 0})
            2'b00 : begin
               pc_prediction_table_valid[pc_stash_base[9:0]] <= 1;
@@ -116,7 +125,7 @@ module IF #(
                  pc_prediction_table_take[pc_stash_base[9:0]] <= PREDICTION_TAKE;
               end
            end
-         endcase // case ({EX_flush,pc_prediction_table_valid[pc_stash_base[9:0]] == 0})
+         endcase // case ({EX_zero,pc_prediction_table_valid[pc_stash_base[9:0]] == 0})
        else begin end
 
 endmodule

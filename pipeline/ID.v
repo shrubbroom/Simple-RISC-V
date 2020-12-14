@@ -1,3 +1,4 @@
+`include "ID_ALU_OP.v"
 module ID #(
             parameter OP_IMME_ARITHMETIC =  7'b0010011,
             parameter OP_ARITHMETIC =  7'b0110011,
@@ -14,6 +15,7 @@ module ID #(
               input [31:0]      reg_read_data_1,
               input [31:0]      reg_read_data_2,
               output reg        ID_branch,
+              output reg        ID_unconditional_jmp,
               output reg        ID_memread,
               output reg        ID_memtoreg,
               // output wire [1:0]  ID_aluop,
@@ -150,4 +152,10 @@ module ID #(
        ID_rs2_data = MEM_WB_result;
      else
        ID_rs2_data = reg_read_data_2;
+
+   always @ *
+     if (IF_ID_instruction[6:0] == OP_UNCONDITIONAL_JMP)
+       ID_unconditional_jmp = 1;
+     else
+       ID_unconditional_jmp = 0;
 endmodule

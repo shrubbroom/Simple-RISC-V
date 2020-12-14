@@ -25,7 +25,7 @@ module EX_MEM_reg(
                   // output reg [31:0] EX_MEM_rs1_data,
                   output reg [31:0] EX_MEM_rs2_data
                   );
-   always @ (posedge clk or negedge reset)
+   always @ (posedge clk or posedge reset)
      if (reset)
        EX_MEM_ALU_result <= 0;
      else
@@ -34,7 +34,7 @@ module EX_MEM_reg(
        else
          EX_MEM_ALU_result <= EX_ALU_result;
 
-   // always @ (posedge clk or negedge reset)
+   // always @ (posedge clk or posedge reset)
    //   if (reset)
    //     EX_MEM_branch <= 0;
    //   else
@@ -43,7 +43,7 @@ module EX_MEM_reg(
    //     else
    //       EX_MEM_branch <= EX_branch;
 
-   // always @ (posedge clk or negedge reset)
+   // always @ (posedge clk or posedge reset)
    //   if (reset)
    //     EX_MEM_flush <= 0;
    //   else
@@ -53,7 +53,7 @@ module EX_MEM_reg(
    //       if (EX_branch && EX_take != EX_zero) EX_MEM_flush <= 1;
    //       else EX_MEM_flush <= 0;
 
-   always @ (posedge clk or negedge reset)
+   always @ (posedge clk or posedge reset)
      if (reset)
        EX_MEM_memtoreg <= 0;
      else
@@ -62,7 +62,7 @@ module EX_MEM_reg(
        else
          EX_MEM_memtoreg <= EX_memtoreg;
 
-   always @ (posedge clk or negedge reset)
+   always @ (posedge clk or posedge reset)
      if (reset)
        EX_MEM_rd <= 0;
      else
@@ -71,7 +71,7 @@ module EX_MEM_reg(
        else
          EX_MEM_rd <= EX_rd;
 
-   always @ (posedge clk or negedge reset)
+   always @ (posedge clk or posedge reset)
      if (reset)
        EX_MEM_regwrite <= 0;
      else
@@ -80,7 +80,7 @@ module EX_MEM_reg(
        else
          EX_MEM_regwrite <= EX_regwrite;
 
-   // always @ (posedge clk or negedge reset)
+   // always @ (posedge clk or posedge reset)
    //   if (reset)
    //     EX_MEM_zero <= 0;
    //   else
@@ -89,7 +89,7 @@ module EX_MEM_reg(
    //     else
    //       EX_MEM_zero <= EX_zero;
 
-   always @ (posedge clk or negedge reset)
+   always @ (posedge clk or posedge reset)
      if (reset)
        EX_MEM_memwrite <= 0;
      else
@@ -99,7 +99,7 @@ module EX_MEM_reg(
          EX_MEM_memwrite <= EX_memwrite;
 
 
-   always @ (posedge clk or negedge reset)
+   always @ (posedge clk or posedge reset)
      if (reset)
        EX_MEM_memread <= 0;
      else
@@ -108,7 +108,7 @@ module EX_MEM_reg(
        else
          EX_MEM_memread <= EX_memread;
 
-   // always @ (posedge clk or negedge reset)
+   // always @ (posedge clk or posedge reset)
    //   if (reset)
    //     EX_MEM_rs1_data <= 0;
    //   else
@@ -117,7 +117,7 @@ module EX_MEM_reg(
    //     else
    //       EX_MEM_rs1_data <= EX_rs1_data;
 
-   always @ (posedge clk or negedge reset)
+   always @ (posedge clk or posedge reset)
      if (reset)
        EX_MEM_rs2_data <= 0;
      else

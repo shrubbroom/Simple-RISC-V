@@ -17,13 +17,13 @@ module MEM_WB_reg(
        MEM_WB_rd <= MEM_rd;
 
 
-   always @ (posedge clk or negedge reset)
+   always @ (posedge clk or posedge reset)
      if (reset)
        MEM_WB_regwrite <= 0;
      else
        MEM_WB_regwrite <= MEM_regwrite;
 
-   always @ (posedge clk or negedge reset)
+   always @ (posedge clk or posedge reset)
      if (reset)
        MEM_WB_result <= 0;
      else

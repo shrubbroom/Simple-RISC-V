@@ -1,3 +1,9 @@
+`include "IF.v"
+`include "ID.v"
+`include "EX.v"
+`include "WB.v"
+`include "MEM.v"
+`include "RF.v"
 module riscv(
 
              input wire         clk,

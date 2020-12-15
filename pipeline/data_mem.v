@@ -9,7 +9,7 @@ module data_mem(
                 );
 
    reg [7:0]                       data[0:32'h400];
-   initial $readmemh( "test_data_mem.txt", data );
+   initial $readmemh( "data_mem.txt", data );
 
    // assign verify = {data[15], data[14], data[13], data[12]};
    assign verify = {data[3], data[2], data[1], data[0]};

@@ -1,3 +1,4 @@
+`include "ID_ALU_OP.v"
 module ID #(
             parameter OP_IMME_ARITHMETIC =  7'b0010011,
             parameter OP_ARITHMETIC =  7'b0110011,

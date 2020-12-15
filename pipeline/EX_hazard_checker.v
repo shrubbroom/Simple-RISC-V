@@ -55,7 +55,7 @@ module EX_hazard_checker#(
          EX_rs2_data_internal = EX_MEM_ALU_result;
          EX_rs2_data_enable_internal = 1;
       end else begin
-         if (EX_MEM_rd != 0 && MEM_WB_rd == ID_EX_rs2 && MEM_WB_regwrite) begin
+         if (MEM_WB_rd != 0 && MEM_WB_rd == ID_EX_rs2 && MEM_WB_regwrite) begin
             EX_rs2_data_internal = MEM_WB_result;
             EX_rs2_data_enable_internal = 1;
          end else begin

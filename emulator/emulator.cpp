@@ -445,9 +445,10 @@ signed int IO_data_ram_read(signed int addr){
   for (int i = 0; i <= 3; ++ i){
     semibyte = fgetc(data_ram);
     value = value + (IO_char_to_hex(semibyte) << ((counter + 1) * 4));
-    counter ++;
+    counter++;
     semibyte = fgetc(data_ram);
     value = value + (IO_char_to_hex(semibyte) << ((counter - 1) * 4));
+    counter++;
     if(LB == 2) semibyte = fgetc(data_ram);
     semibyte = fgetc(data_ram);
   }

@@ -9,6 +9,7 @@ module ID #(
             parameter OP_MEMORY_STORE =  7'b0100011
             )(
               input [31:0]      IF_ID_instruction,
+              input [31:0]      IF_ID_pc,
               // input             IF_ID_take,
               input [4:0]       MEM_WB_rd,
               input [31:0]      MEM_WB_result,
@@ -31,12 +32,13 @@ module ID #(
               // output reg        ID_take,
               output reg [31:0] ID_rs1_data,
               output reg [31:0] ID_rs2_data,
+              output reg [31:0] ID_pc,
               /*AUTOINPUT*/
               // Beginning of automatic inputs (from unused autoinst inputs)
-              input [31:0]    EX_MEM_ALU_result,      // To ID_hazard_checker of ID_hazard_checker.v
-              input           EX_MEM_memread,         // To ID_hazard_checker of ID_hazard_checker.v
-              input [4:0]     EX_MEM_rd,              // To ID_hazard_checker of ID_hazard_checker.v
-              input           EX_MEM_regwrite        // To ID_hazard_checker of ID_hazard_checker.v
+              input [31:0]      EX_MEM_ALU_result, // To ID_hazard_checker of ID_hazard_checker.v
+              input             EX_MEM_memread, // To ID_hazard_checker of ID_hazard_checker.v
+              input [4:0]       EX_MEM_rd, // To ID_hazard_checker of ID_hazard_checker.v
+              input             EX_MEM_regwrite        // To ID_hazard_checker of ID_hazard_checker.v
               // End of automatics
               );
 
@@ -71,6 +73,7 @@ module ID #(
        OP_MEMORY_LOAD : ID_regwrite = 1;
        OP_IMME_ARITHMETIC : ID_regwrite = 1;
        OP_ARITHMETIC : ID_regwrite = 1;
+       OP_UNCONDITIONAL_JMP : ID_regwrite = 1;
        default : ID_regwrite = 0;
      endcase
 
@@ -202,4 +205,8 @@ module ID #(
        ID_unconditional_jmp = 1;
      else
        ID_unconditional_jmp = 0;
+
+   always @ *
+     ID_pc = IF_ID_pc;
+
 endmodule

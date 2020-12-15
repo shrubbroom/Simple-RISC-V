@@ -17,6 +17,7 @@ module ID_EX_reg(
                  input [31:0]      ID_rs2_data,
                  input [4:0]       ID_rd,
                  input             ID_unconditional_jmp,
+                 input [31:0]      ID_pc,
                  // input             ID_take,
                  output reg        ID_EX_branch,
                  output reg        ID_EX_memread,
@@ -31,7 +32,8 @@ module ID_EX_reg(
                  output reg [4:0]  ID_EX_rs2,
                  output reg [31:0] ID_EX_rs2_data,
                  output reg [4:0]  ID_EX_rd,
-                 output reg        ID_EX_unconditional_jmp
+                 output reg        ID_EX_unconditional_jmp,
+                 output reg [31:0] ID_EX_pc
                  // output reg        ID_EX_take
                  );
    always @ (posedge clk or posedge reset)
@@ -152,6 +154,15 @@ module ID_EX_reg(
          ID_EX_unconditional_jmp <= ID_EX_unconditional_jmp;
        else
          ID_EX_unconditional_jmp <= ID_unconditional_jmp;
+
+   always @ (posedge clk or posedge reset)
+      if (reset)
+        ID_EX_pc <= 0;
+      else
+        if (EX_stall)
+          ID_EX_pc <= ID_EX_pc;
+        else
+          ID_EX_pc <= ID_pc;
 
    // always @ (posedge clk or posedge reset)
    //   if (reset)

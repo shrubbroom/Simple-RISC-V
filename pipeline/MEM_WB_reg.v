@@ -4,6 +4,8 @@ module MEM_WB_reg(
                   input [31:0]      data_mem_read_data,
                   input             MEM_regwrite,
                   input [4:0]       MEM_rd,
+                  input [31:0]      MEM_pc,
+                  input             MEM_unconditional_jmp,
                   input             MEM_memtoreg,
                   input [31:0]      MEM_ALU_result,
                   output reg [4:0]  MEM_WB_rd,
@@ -28,7 +30,10 @@ module MEM_WB_reg(
        MEM_WB_result <= 0;
      else
        if (MEM_memtoreg)
-         MEM_WB_result <= data_mem_read_data;
+         if (MEM_unconditional_jmp)
+           MEM_WB_result <= MEM_pc;
+         else
+           MEM_WB_result <= data_mem_read_data;
        else
          MEM_WB_result <= MEM_ALU_result;
 endmodule

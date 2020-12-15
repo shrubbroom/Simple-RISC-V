@@ -3,6 +3,8 @@ module MEM(
            input             EX_MEM_memread,
            input             EX_MEM_memwrite,
            input             EX_MEM_regwrite,
+           input [31:0]      EX_MEM_pc,
+           input             EX_MEM_unconditional_jmp,
            // input             EX_MEM_zero,
            input [4:0]       EX_MEM_rd,
            // input [31:0]      EX_MEM_rs1_data,
@@ -18,7 +20,9 @@ module MEM(
            // output reg        MEM_zero,
            output reg [4:0]  MEM_rd,
            output reg        MEM_memtoreg,
-           output reg [31:0] MEM_ALU_result
+           output reg [31:0] MEM_ALU_result,
+           output reg [31:0] MEM_pc,
+           output reg        MEM_unconditional_jmp
            );
 
    always @ *
@@ -56,5 +60,11 @@ module MEM(
 
    always @ *
      MEM_ALU_result = EX_MEM_ALU_result;
+
+   always @ *
+     MEM_unconditional_jmp = EX_MEM_unconditional_jmp;
+
+   always @ *
+     MEM_pc = EX_MEM_pc;
 
 endmodule // MEM

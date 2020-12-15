@@ -2,6 +2,8 @@ module EX_MEM_reg(
                   input             clk,
                   input             reset,
                   input [31:0]      EX_ALU_result,
+                  input             EX_unconditional_jmp,
+                  input [31:0]      EX_pc,
                   // input             EX_branch,
                   // input             EX_zero,
                   // input             EX_take,
@@ -23,7 +25,9 @@ module EX_MEM_reg(
                   output reg        EX_MEM_memread,
                   output reg        EX_MEM_memwrite,
                   // output reg [31:0] EX_MEM_rs1_data,
-                  output reg [31:0] EX_MEM_rs2_data
+                  output reg [31:0] EX_MEM_rs2_data,
+                  output reg [31:0] EX_MEM_pc,
+                  output reg        EX_MEM_unconditional_jmp
                   );
    always @ (posedge clk or posedge reset)
      if (reset)
@@ -125,5 +129,24 @@ module EX_MEM_reg(
          EX_MEM_rs2_data <= 0; // insert a NOPE
        else
          EX_MEM_rs2_data <= EX_rs2_data;
+
+   always @ (posedge clk or posedge reset)
+      if (reset)
+        EX_MEM_pc <= 0;
+      else
+        if (EX_stall)
+          EX_MEM_pc <= 0;
+        else
+          EX_MEM_pc <= EX_pc;
+
+   always @ (posedge clk or posedge reset)
+      if (reset)
+        EX_MEM_unconditional_jmp <= 0;
+      else
+        if (EX_stall)
+          EX_MEM_unconditional_jmp <= 0;
+        else
+          EX_MEM_unconditional_jmp <= EX_unconditional_jmp;
+
 
 endmodule // EX_MEM_reg

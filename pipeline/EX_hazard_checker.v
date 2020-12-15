@@ -36,11 +36,11 @@ module EX_hazard_checker#(
    assign EX_stall = EX_stall_internal;
 
    always @ * begin
-      if (EX_MEM_rd == ID_EX_rs1 && EX_MEM_regwrite && !EX_MEM_memread) begin
+      if (EX_MEM_rd != 0 && EX_MEM_rd == ID_EX_rs1 && EX_MEM_regwrite && !EX_MEM_memread) begin
          EX_rs1_data_internal = EX_MEM_ALU_result;
          EX_rs1_data_enable_internal = 1;
       end else begin
-         if (MEM_WB_rd == ID_EX_rs1 && MEM_WB_regwrite) begin
+         if (MEM_WB_rd != 0 && MEM_WB_rd == ID_EX_rs1 && MEM_WB_regwrite) begin
             EX_rs1_data_internal = MEM_WB_result;
             EX_rs1_data_enable_internal = 1;
          end else begin
@@ -51,11 +51,11 @@ module EX_hazard_checker#(
    end
 
    always @ * begin
-      if (EX_MEM_rd == ID_EX_rs2 && EX_MEM_regwrite && !EX_MEM_memread) begin
+      if (EX_MEM_rd != 0 && EX_MEM_rd == ID_EX_rs2 && EX_MEM_regwrite && !EX_MEM_memread) begin
          EX_rs2_data_internal = EX_MEM_ALU_result;
          EX_rs2_data_enable_internal = 1;
       end else begin
-         if (MEM_WB_rd == ID_EX_rs2 && MEM_WB_regwrite) begin
+         if (EX_MEM_rd != 0 && MEM_WB_rd == ID_EX_rs2 && MEM_WB_regwrite) begin
             EX_rs2_data_internal = MEM_WB_result;
             EX_rs2_data_enable_internal = 1;
          end else begin
@@ -67,7 +67,8 @@ module EX_hazard_checker#(
 
 
    always @ * begin
-      if ((EX_MEM_rd == ID_EX_rs1 || EX_MEM_rd == ID_EX_rs2) && EX_MEM_memtoreg) EX_stall_internal = 1;
+      if (((EX_MEM_rd != 0 && EX_MEM_rd == ID_EX_rs1) ||
+           (EX_MEM_rd != 0 && EX_MEM_rd == ID_EX_rs2)) && EX_MEM_memtoreg) EX_stall_internal = 1;
       else EX_stall_internal = 0;
    end
 endmodule

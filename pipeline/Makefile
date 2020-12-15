@@ -16,7 +16,7 @@ lint:
 	verilator --lint-only $(SRCS)
 
 simulate:
-	iverilog -o $(TESTBENCH).vvp $(SRCS) $(TESTBENCH).v
+	iverilog -o $(TESTBENCH).vvp $(TESTBENCH).v
 	vvp $(TESTBENCH).vvp
 
 test_%:

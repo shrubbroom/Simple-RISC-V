@@ -6,8 +6,8 @@ module RF(
           input wire [4:0]   reg_write_addr,
           input wire [31:0]  reg_write_data,
           input wire         reg_write_enable,
-          output wire [31:0] reg_read_data_1,
-          output wire [31:0] reg_read_data_2
+          output reg [31:0] reg_read_data_1,
+          output reg [31:0] reg_read_data_2
           );
    reg [31:0]                register_file [31:0];
    always @ (posedge clk)

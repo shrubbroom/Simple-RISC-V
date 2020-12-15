@@ -1,3 +1,7 @@
+`include "riscv.v"
+`include "inst_mem.v"
+`include "data_mem.v"
+
 `timescale 1ps/1ps
 
 module riscv_soc_tb();

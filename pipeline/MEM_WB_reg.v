@@ -30,10 +30,10 @@ module MEM_WB_reg(
        MEM_WB_result <= 0;
      else
        if (MEM_memtoreg)
+         MEM_WB_result <= data_mem_read_data;
+       else
          if (MEM_unconditional_jmp)
            MEM_WB_result <= MEM_pc;
          else
-           MEM_WB_result <= data_mem_read_data;
-       else
-         MEM_WB_result <= MEM_ALU_result;
+           MEM_WB_result <= MEM_ALU_result;
 endmodule

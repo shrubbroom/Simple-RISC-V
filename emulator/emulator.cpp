@@ -55,7 +55,7 @@ void RISC_V_or(signed int*, signed int*, signed int*);
 void RISC_V_xor(signed int*, signed int*, signed int*);
 void RISC_V_blt(unsigned int*, signed int*, signed int*, signed int);
 void RISC_V_beq(unsigned int*, signed int*, signed int*, signed int);
-void RISC_V_jal(unsigned int*, signed int);
+void RISC_V_jal(unsigned int*, signed int, signed int*);
 void RISC_V_sll(signed int*, signed int*, signed int*);
 void RISC_V_srl(signed int*, signed int*, signed int*);
 void RISC_V_lw(signed int*, signed int, signed int*);
@@ -63,6 +63,7 @@ void RISC_V_sw(signed int*, signed int, signed int*);
 signed int IO_inst_ram_read(unsigned int);
 signed int IO_data_ram_read(signed int);
 void IO_data_ram_write(signed int, signed int);
+inline char IO_hex_to_char(int semibyte);
 void DEBUG_print_all(signed int ** RF, unsigned int * pc, signed int * instruction, signed int ** descriptor){
   cout<<"Register files are:\n";
   for(int m = 0; m <= 7; ++m){
@@ -125,128 +126,249 @@ void DEBUG_print_all(signed int ** RF, unsigned int * pc, signed int * instructi
 FILE* IO_inst_ram_normalize(FILE*);
 FILE* inst_ram;
 FILE* data_ram;
-int main(){
+int main(int argc, char *argv[]){
   signed int * Register_File[32];
-  cout << "Allocating register file, PC and instruction , the size of each register is "<<sizeof(signed int)<<" bytes\n";
-  for (int i = 0; i <= 31 ; ++ i){
-    Register_File[i] = (signed int*) malloc(sizeof(signed int));
-    *Register_File[i] = 0;
-  }
+  int Register_File_Used[32];
   unsigned int * pc;
-  pc = (unsigned int *) malloc(sizeof(unsigned int));
-  *(pc) = 0;
-
   signed int * instruction;
-  instruction = (signed int *) malloc(sizeof(signed int));
-  *instruction = 0;
-
   int * descriptor[5];
-  for (int i = 0; i <= 4; ++i) {
-    descriptor[i] = (int *)malloc(sizeof(int));
-    *descriptor[i] = 0;
-  }
 
-  cout << "Connecting instruction RAM file and data RAM file\n";
-  inst_ram = fopen("machinecode.txt", "r");
-  inst_ram = IO_inst_ram_normalize(inst_ram);
-  data_ram = fopen("data_mem.txt","r+");
-
-  char command;
-  int print_flag = 0;
-  cout << "Emulator is kicked up\n";
-  while(true){
-    while(true){
-      cout<<"Type instruction (n, next) (p, print) (t, toggle print on each step):\n";
-      cin>>command;
-      if(command == 'n') break;
-      else
-        switch (command) {
-        case 'p':
-          DEBUG_print_all(Register_File, pc, instruction, descriptor);
-          break;
-        case 't':
-          print_flag = (print_flag == 0);
-          if (print_flag) cout << "Turn on printing in each step\n";
-          else cout << "Turn off printing in each step\n";
-          break;
-        default:
-          cout << "This is not a command " << command <<'\n';
-        }
+  if (argc == 1) {
+    cout << "Allocating register file, PC and instruction , the size of each "
+            "register is "
+         << sizeof(signed int) << " bytes\n";
+    for (int i = 0; i <= 31; ++i) {
+      Register_File[i] = (signed int *)malloc(sizeof(signed int));
+      *Register_File[i] = 0;
     }
+    pc = (unsigned int *)malloc(sizeof(unsigned int));
+    *(pc) = 0;
 
-    *instruction = IO_inst_ram_read(*pc);
-    RISC_V_parser(instruction, descriptor);
-    switch (*descriptor[OP]) {
-    case ADD:
-      RISC_V_add(Register_File[*descriptor[RD]],
-                 Register_File[*descriptor[RS1]],
-                 Register_File[*descriptor[RS2]]);
-      break;
-    case SUB:
-      RISC_V_sub(Register_File[*descriptor[RD]],
-                 Register_File[*descriptor[RS1]],
-                 Register_File[*descriptor[RS2]]);
-      break;
-    case ADDI:
-      RISC_V_addi(Register_File[*descriptor[RD]],
+    instruction = (signed int *)malloc(sizeof(signed int));
+    *instruction = 0;
+
+    for (int i = 0; i <= 4; ++i) {
+      descriptor[i] = (int *)malloc(sizeof(int));
+      *descriptor[i] = 0;
+    }
+    cout << "Connecting instruction RAM file and data RAM file\n";
+    inst_ram = fopen("machinecode.txt", "r");
+    inst_ram = IO_inst_ram_normalize(inst_ram);
+    data_ram = fopen("data_mem.txt", "r+");
+
+    char command;
+    int print_flag = 0;
+    cout << "Emulator is kicked up\n";
+    while (true) {
+      while (true) {
+        cout << "Type instruction (n, next) (p, print) (t, toggle print on "
+                "each step):\n";
+        cin >> command;
+        if (command == 'n')
+          break;
+        else
+          switch (command) {
+          case 'p':
+            DEBUG_print_all(Register_File, pc, instruction, descriptor);
+            break;
+          case 't':
+            print_flag = (print_flag == 0);
+            if (print_flag)
+              cout << "Turn on printing in each step\n";
+            else
+              cout << "Turn off printing in each step\n";
+            break;
+          default:
+            cout << "This is not a command " << command << '\n';
+          }
+      }
+
+      *instruction = IO_inst_ram_read(*pc);
+      RISC_V_parser(instruction, descriptor);
+      switch (*descriptor[OP]) {
+      case ADD:
+        RISC_V_add(Register_File[*descriptor[RD]],
+                   Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]]);
+        break;
+      case SUB:
+        RISC_V_sub(Register_File[*descriptor[RD]],
+                   Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]]);
+        break;
+      case ADDI:
+        RISC_V_addi(Register_File[*descriptor[RD]],
+                    Register_File[*descriptor[RS1]], *descriptor[IMME]);
+        break;
+      case AND:
+        RISC_V_and(Register_File[*descriptor[RD]],
+                   Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]]);
+        break;
+      case OR:
+        RISC_V_or(Register_File[*descriptor[RD]],
                   Register_File[*descriptor[RS1]],
-                  *descriptor[IMME]);
-      break;
-    case AND:
-      RISC_V_and(Register_File[*descriptor[RD]],
-                 Register_File[*descriptor[RS1]],
-                 Register_File[*descriptor[RS2]]);
-      break;
-    case OR:
-      RISC_V_or(Register_File[*descriptor[RD]],
-                Register_File[*descriptor[RS1]],
-                Register_File[*descriptor[RS2]]);
-      break;
-    case XOR:
-      RISC_V_xor(Register_File[*descriptor[RD]],
-                 Register_File[*descriptor[RS1]],
-                 Register_File[*descriptor[RS2]]);
-      break;
-    case BLT:
-      RISC_V_blt(pc,
-                 Register_File[*descriptor[RS1]],
-                 Register_File[*descriptor[RS2]],
-                 *descriptor[IMME]);
-      break;
-    case BEQ:
-      RISC_V_beq(pc,
-                 Register_File[*descriptor[RS1]],
-                 Register_File[*descriptor[RS2]],
-                 *descriptor[IMME]);
-      break;
-    case JAL:
-      RISC_V_jal(pc, *descriptor[IMME]);
-      break;
-    case SLL:
-      RISC_V_sll(Register_File[*descriptor[RD]],
-                 Register_File[*descriptor[RS1]],
-                 Register_File[*descriptor[RS2]]);
-      break;
-    case SRL:
-      RISC_V_srl(Register_File[*descriptor[RD]],
-                 Register_File[*descriptor[RS1]],
-                 Register_File[*descriptor[RS2]]);
-      break;
-    case LW:
-      RISC_V_lw(Register_File[*descriptor[RD]],
-                *descriptor[IMME],
-                Register_File[*descriptor[RS1]]);
-      break;
-    case SW:
-      RISC_V_sw(Register_File[*descriptor[RS2]],
-                *descriptor[IMME],
-                Register_File[*descriptor[RS1]]);
-      break;
+                  Register_File[*descriptor[RS2]]);
+        break;
+      case XOR:
+        RISC_V_xor(Register_File[*descriptor[RD]],
+                   Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]]);
+        break;
+      case BLT:
+        RISC_V_blt(pc, Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]], *descriptor[IMME]);
+        break;
+      case BEQ:
+        RISC_V_beq(pc, Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]], *descriptor[IMME]);
+        break;
+      case JAL:
+        RISC_V_jal(pc, *descriptor[IMME], Register_File[*descriptor[RD]]);
+        break;
+      case SLL:
+        RISC_V_sll(Register_File[*descriptor[RD]],
+                   Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]]);
+        break;
+      case SRL:
+        RISC_V_srl(Register_File[*descriptor[RD]],
+                   Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]]);
+        break;
+      case LW:
+        RISC_V_lw(Register_File[*descriptor[RD]], *descriptor[IMME],
+                  Register_File[*descriptor[RS1]]);
+        break;
+      case SW:
+        RISC_V_sw(Register_File[*descriptor[RS2]], *descriptor[IMME],
+                  Register_File[*descriptor[RS1]]);
+        break;
+      }
+      if (*descriptor[OP] != BEQ && *descriptor[OP] != BLT &&
+          *descriptor[OP] != JAL)
+        *(pc) = *(pc) + 4;
+      if (print_flag)
+        DEBUG_print_all(Register_File, pc, instruction, descriptor);
     }
-    if(*descriptor[OP] != BEQ &&
-       *descriptor[OP] != BLT &&
-       *descriptor[OP] != JAL) *(pc) = *(pc) + 4;
-    if(print_flag) DEBUG_print_all(Register_File, pc, instruction, descriptor);
+  } else {
+    for (int i = 0; i <= 31; ++i) {
+      Register_File[i] = (signed int *)malloc(sizeof(signed int));
+      *Register_File[i] = 0;
+      Register_File_Used[i] = 0;
+    }
+    Register_File_Used[0] = 1;
+    pc = (unsigned int *)malloc(sizeof(unsigned int));
+    *(pc) = 0;
+    instruction = (signed int *)malloc(sizeof(signed int));
+    *instruction = 0;
+    for (int i = 0; i <= 4; ++i) {
+      descriptor[i] = (int *)malloc(sizeof(int));
+      *descriptor[i] = 0;
+    }
+    inst_ram = fopen("machinecode.txt", "r");
+    inst_ram = IO_inst_ram_normalize(inst_ram);
+    data_ram = fopen("data_mem_emu.txt", "r+");
+
+    char command;
+    int print_flag = 0;
+    while (true) {
+      try {
+        *instruction = IO_inst_ram_read(*pc);
+      } catch(int x) {
+        if (x == 100) {
+          FILE *RF = fopen("register_file_emu.txt", "w");
+          for (int i = 0; i<=31; ++i){
+            if (Register_File_Used[i]) {
+              fputc(IO_hex_to_char((((unsigned int)*Register_File[i]) >> 28)&0b1111), RF);
+              fputc(IO_hex_to_char((((unsigned int)*Register_File[i]) >> 24)&0b1111), RF);
+              fputc(IO_hex_to_char((((unsigned int)*Register_File[i]) >> 20)&0b1111), RF);
+              fputc(IO_hex_to_char((((unsigned int)*Register_File[i]) >> 16)&0b1111), RF);
+              fputc(IO_hex_to_char((((unsigned int)*Register_File[i]) >> 12)&0b1111), RF);
+              fputc(IO_hex_to_char((((unsigned int)*Register_File[i]) >> 8)&0b1111), RF);
+              fputc(IO_hex_to_char((((unsigned int)*Register_File[i]) >> 4)&0b1111), RF);
+              fputc(IO_hex_to_char((((unsigned int)*Register_File[i]) >> 0)&0b1111), RF);
+              fputc('\n', RF);
+            }else{
+              for (int j = 1; j <= 8; ++j) {
+                fputc('x', RF);
+              }
+              fputc('\n', RF);
+            }
+          }
+          fclose(RF);
+          fclose(inst_ram);
+          fclose(data_ram);
+          return(0);
+        } else return(1);
+      }
+      RISC_V_parser(instruction, descriptor);
+      Register_File_Used[*descriptor[RD]] = 1;
+      switch (*descriptor[OP]) {
+      case ADD:
+        RISC_V_add(Register_File[*descriptor[RD]],
+                   Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]]);
+        break;
+      case SUB:
+        RISC_V_sub(Register_File[*descriptor[RD]],
+                   Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]]);
+        break;
+      case ADDI:
+        RISC_V_addi(Register_File[*descriptor[RD]],
+                    Register_File[*descriptor[RS1]], *descriptor[IMME]);
+        break;
+      case AND:
+        RISC_V_and(Register_File[*descriptor[RD]],
+                   Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]]);
+        break;
+      case OR:
+        RISC_V_or(Register_File[*descriptor[RD]],
+                  Register_File[*descriptor[RS1]],
+                  Register_File[*descriptor[RS2]]);
+        break;
+      case XOR:
+        RISC_V_xor(Register_File[*descriptor[RD]],
+                   Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]]);
+        break;
+      case BLT:
+        RISC_V_blt(pc, Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]], *descriptor[IMME]);
+        break;
+      case BEQ:
+        RISC_V_beq(pc, Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]], *descriptor[IMME]);
+        break;
+      case JAL:
+        RISC_V_jal(pc, *descriptor[IMME], Register_File[*descriptor[RD]]);
+        break;
+      case SLL:
+        RISC_V_sll(Register_File[*descriptor[RD]],
+                   Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]]);
+        break;
+      case SRL:
+        RISC_V_srl(Register_File[*descriptor[RD]],
+                   Register_File[*descriptor[RS1]],
+                   Register_File[*descriptor[RS2]]);
+        break;
+      case LW:
+        RISC_V_lw(Register_File[*descriptor[RD]], *descriptor[IMME],
+                  Register_File[*descriptor[RS1]]);
+        break;
+      case SW:
+        RISC_V_sw(Register_File[*descriptor[RS2]], *descriptor[IMME],
+                  Register_File[*descriptor[RS1]]);
+        break;
+      }
+      *Register_File[0] = 0;
+      if (*descriptor[OP] != BEQ && *descriptor[OP] != BLT &&
+          *descriptor[OP] != JAL)
+        *(pc) = *(pc) + 4;
+    }
   }
 }
 
@@ -321,7 +443,7 @@ void RISC_V_conditional_jmp_parser(signed int* instruction, int** descriptor){
 }
 void RISC_V_unconditional_jmp_parser(signed int* instruction, int** descriptor){
   *descriptor[OP] = JAL;
-  *descriptor[RD] = 0; // JAL's rd is always x0
+  *descriptor[RD] = ((*instruction) >> 7) & 0b11111;
   *descriptor[IMME] = ((*instruction >> 20) & 0b11111111110) |
     ((*instruction >> 9) & 0b100000000000) |
     ((*instruction) & 0xff000) |
@@ -366,7 +488,8 @@ void RISC_V_beq(unsigned int* pc, signed int* rs1, signed int* rs2, signed int i
   if (*(rs1) == *(rs2)) *(pc) = *(pc) +(unsigned int) imme;
   else *(pc) = *(pc) + 4;
 }
-void RISC_V_jal(unsigned int* pc, signed int imme){
+void RISC_V_jal(unsigned int* pc, signed int imme, signed int* rd){
+  *(rd) = *(pc) + 4;
   *(pc) = *(pc) + (unsigned int) imme;
 }
 
@@ -406,7 +529,8 @@ inline unsigned int IO_char_to_hex(char semibyte){
   else {
     cerr<<"fatal error in converting char to hex\n";
     cerr<<"converting "<<semibyte<<'\n';
-    exit(1);
+    throw 100;
+    // exit(0);
   }
 }
 
@@ -416,7 +540,7 @@ inline char IO_hex_to_char(int semibyte){
   else {
     cerr<<"fatal error in converting hex to char\n";
     cerr<<"converting "<<semibyte<<'\n';
-    exit(1);
+    exit(0);
   }
 }
 signed int IO_inst_ram_read(unsigned int pc){

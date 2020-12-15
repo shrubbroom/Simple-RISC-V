@@ -29,16 +29,16 @@ module IF_ID_reg(
 
    always @ (posedge clk or posedge reset)
      if (reset) IF_ID_instruction <= 0;
-     else if(EX_branch && (EX_zero != IF_take))
-       IF_ID_pc <= 0;
+   // else if(EX_branch && (EX_zero != IF_take))
+   //   IF_ID_pc <= 0;
+   // else
+   //   if (EX_stall)
+   //     IF_ID_pc <= IF_ID_pc;
+   //   else
+   //     if (ID_branch)
+   //       IF_ID_pc <= 0; // this is a nope for JMP instruction
      else
-       if (EX_stall)
-         IF_ID_pc <= IF_ID_pc;
-       else
-         if (ID_branch)
-           IF_ID_pc <= 0; // this is a nope for JMP instruction
-         else
-           IF_ID_pc <= inst_mem_read_addr + 4;
+       IF_ID_pc <= inst_mem_read_addr + 4;
 
 
    // always @ (posedge clk or posedge reset)

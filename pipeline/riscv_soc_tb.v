@@ -9,6 +9,7 @@ module riscv_soc_tb();
    reg     clk;
    reg     rst;
    integer i;
+   integer handle;
 
 
    initial begin
@@ -25,7 +26,18 @@ module riscv_soc_tb();
         $dumpvars(0, riscv_soc_tb.data_mem0.data[i]);
       rst = 1'b1;
       #300    rst= 1'b0;
-      #100000 $display("---     result is %d         ---\n", verify);
+      #100000 ;
+      handle = $fopen("./data_mem_verilog.txt","w");
+      for (i = 0; i <= 1023; i = i+1) begin
+         $fwrite(handle, "%h\n", riscv_soc_tb.data_mem0.data[i]);
+      end
+      $fclose(handle);
+      handle = $fopen("./register_file_verilog.txt", "w");
+      $fwrite(handle, "%h\n", 32'b0);
+      for (i = 1; i <= 31; i = i+1) begin
+         $fwrite(handle, "%h\n", riscv_soc_tb.riscv0.RF.register_file[i]);
+      end
+      $fclose(handle);
       #1000 $finish;
       // #1000   $stop;
    end

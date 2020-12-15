@@ -21,6 +21,8 @@ simulate:
 
 test:
 	rm -f test_data_mem.txt
+	rm -f data_mem_verilog.txt
+	rm -f register_file_verilog.txt
 	for i in {1..1024}; do echo "00" >> test_data_mem.txt; done
 	make simulate
 

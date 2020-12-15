@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 TESTBENCH=riscv_soc_tb
 rm -rf testbench
 mkdir testbench

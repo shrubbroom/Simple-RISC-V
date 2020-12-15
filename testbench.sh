@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 TESTBENCH=riscv_soc_tb
 rm -rf testbench
 mkdir testbench
@@ -22,10 +22,6 @@ for a in *.asm; do
     iverilog -o $TESTBENCH.vvp $TESTBENCH.v
     vvp $TESTBENCH.vvp
     ./emulator x
-    cat data_mem_emu.txt
-    echo
-    cat data_mem_verilog.txt
-    echo
     diff data_mem_emu.txt data_mem_verilog.txt
     diff register_file_emu.txt register_file_verilog.txt
     echo -n "Testing "

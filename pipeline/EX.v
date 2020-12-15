@@ -41,13 +41,14 @@ module EX#(
               // output reg        EX_flush,
               /*AUTOINPUT*/
               // Beginning of automatic inputs (from unused autoinst inputs)
-              input [31:0]      EX_MEM_ALU_result, // To EX_hazard_checker of EX_hazard_checker.v
-              input             EX_MEM_memtoreg, // To EX_hazard_checker of EX_hazard_checker.v
-              input [4:0]       EX_MEM_rd, // To EX_hazard_checker of EX_hazard_checker.v
-              input             EX_MEM_regwrite, // To EX_hazard_checker of EX_hazard_checker.v
-              input [4:0]       MEM_WB_rd, // To EX_hazard_checker of EX_hazard_checker.v
-              input             MEM_WB_regwrite, // To EX_hazard_checker of EX_hazard_checker.v
-              input [31:0]      MEM_WB_result          // To EX_hazard_checker of EX_hazard_checker.v
+              input [31:0]    EX_MEM_ALU_result,      // To EX_hazard_checker of EX_hazard_checker.v
+              input           EX_MEM_memread,         // To EX_hazard_checker of EX_hazard_checker.v
+              input           EX_MEM_memtoreg,        // To EX_hazard_checker of EX_hazard_checker.v
+              input [4:0]     EX_MEM_rd,              // To EX_hazard_checker of EX_hazard_checker.v
+              input           EX_MEM_regwrite,        // To EX_hazard_checker of EX_hazard_checker.v
+              input [4:0]     MEM_WB_rd,              // To EX_hazard_checker of EX_hazard_checker.v
+              input           MEM_WB_regwrite,        // To EX_hazard_checker of EX_hazard_checker.v
+              input [31:0]    MEM_WB_result          // To EX_hazard_checker of EX_hazard_checker.v
               // End of automatics
               );
    /*AUTOWIRE*/
@@ -71,6 +72,7 @@ module EX#(
                                        .EX_MEM_regwrite (EX_MEM_regwrite),
                                        .EX_MEM_ALU_result(EX_MEM_ALU_result[31:0]),
                                        .EX_MEM_memtoreg (EX_MEM_memtoreg),
+                                       .EX_MEM_memread  (EX_MEM_memread),
                                        .MEM_WB_rd       (MEM_WB_rd[4:0]),
                                        .MEM_WB_result   (MEM_WB_result[31:0]),
                                        .MEM_WB_regwrite (MEM_WB_regwrite));

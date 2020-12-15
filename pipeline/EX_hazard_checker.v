@@ -13,6 +13,7 @@ module EX_hazard_checker#(
                              input wire         EX_MEM_regwrite,
                              input wire [31:0]  EX_MEM_ALU_result,
                              input wire         EX_MEM_memtoreg,
+                             input wire         EX_MEM_memread,
                              input wire [4:0]   MEM_WB_rd, // rd in MEM_WB_reg
                              input wire [31:0]  MEM_WB_result, // result in MEM_WB_reg, this result can be ALU result (if this is not a mem operation) or MEM read result (is this is 'memtoreg' operation)
                              input wire         MEM_WB_regwrite,
@@ -35,7 +36,7 @@ module EX_hazard_checker#(
    assign EX_stall = EX_stall_internal;
 
    always @ * begin
-      if (EX_MEM_rd == ID_EX_rs1 && EX_MEM_regwrite) begin
+      if (EX_MEM_rd == ID_EX_rs1 && EX_MEM_regwrite && !EX_MEM_memread) begin
          EX_rs1_data_internal = EX_MEM_ALU_result;
          EX_rs1_data_enable_internal = 1;
       end else begin
@@ -50,7 +51,7 @@ module EX_hazard_checker#(
    end
 
    always @ * begin
-      if (EX_MEM_rd == ID_EX_rs2 && EX_MEM_regwrite) begin
+      if (EX_MEM_rd == ID_EX_rs2 && EX_MEM_regwrite && !EX_MEM_memread) begin
          EX_rs2_data_internal = EX_MEM_ALU_result;
          EX_rs2_data_enable_internal = 1;
       end else begin

@@ -165,7 +165,11 @@ module riscv(
          .MEM_WB_result                 (MEM_WB_result[31:0]),
          .MEM_WB_regwrite               (MEM_WB_regwrite),
          .reg_read_data_1               (reg_read_data_1[31:0]),
-         .reg_read_data_2               (reg_read_data_2[31:0]));
+         .reg_read_data_2               (reg_read_data_2[31:0]),
+         .EX_MEM_ALU_result             (EX_MEM_ALU_result[31:0]),
+         .EX_MEM_memread                (EX_MEM_memread),
+         .EX_MEM_rd                     (EX_MEM_rd[4:0]),
+         .EX_MEM_regwrite               (EX_MEM_regwrite));
    ID_EX_reg ID_EX_reg(/*AUTOINST*/
                        // Outputs
                        .ID_EX_branch    (ID_EX_branch),
@@ -229,6 +233,7 @@ module riscv(
          .ID_EX_regwrite                (ID_EX_regwrite),
          .ID_EX_unconditional_jmp       (ID_EX_unconditional_jmp),
          .EX_MEM_ALU_result             (EX_MEM_ALU_result[31:0]),
+         .EX_MEM_memread                (EX_MEM_memread),
          .EX_MEM_memtoreg               (EX_MEM_memtoreg),
          .EX_MEM_rd                     (EX_MEM_rd[4:0]),
          .EX_MEM_regwrite               (EX_MEM_regwrite),

@@ -151,8 +151,7 @@ module EX#(
      EX_unconditional_jmp = ID_EX_unconditional_jmp;
 
    always @ *
-   //  EX_pc = ID_EX_pc;
-   EX_pc = 0;
+     EX_pc = ID_EX_pc;
    // always @ *
    //   EX_take = ID_EX_take;
 

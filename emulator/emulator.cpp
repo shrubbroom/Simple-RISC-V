@@ -245,6 +245,7 @@ int main(int argc, char *argv[]){
                   Register_File[*descriptor[RS1]]);
         break;
       }
+      *Register_File[0] = 0;
       if (*descriptor[OP] != BEQ && *descriptor[OP] != BLT &&
           *descriptor[OP] != JAL)
         *(pc) = *(pc) + 4;

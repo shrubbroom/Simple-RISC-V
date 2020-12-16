@@ -28,7 +28,7 @@ module IF_ID_reg(
            IF_ID_instruction <= inst_mem_read_data;
 
    always @ (posedge clk or posedge reset)
-     if (reset) IF_ID_instruction <= 0;
+     if (reset) IF_ID_pc <= 0;
    // else if(EX_branch && (EX_zero != IF_take))
    //   IF_ID_pc <= 0;
    // else

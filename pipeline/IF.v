@@ -1,4 +1,4 @@
-`include "IF_branch_prediction.v"
+`include "IF_branch_prediction_static.v"
 module IF (
            input         clk,
            input         reset,
@@ -23,18 +23,18 @@ module IF (
    wire                  pc_jmp_take = EX_zero;
    /*AUTOWIRE*/
    // Beginning of automatic wires (for undeclared instantiated-module outputs)
-   wire                  pc_prediction_take;     // From IF_branch_prediction of IF_branch_prediction.v
+   wire                 pc_prediction_take;     // From IF_branch_prediction_static of IF_branch_prediction_static.v
    // End of automatics
-   IF_branch_prediction IF_branch_prediction(/*AUTOINST*/
-                                             // Outputs
-                                             .pc_prediction_take(pc_prediction_take),
-                                             // Inputs
-                                             .clk               (clk),
-                                             .reset             (reset),
-                                             .pc_jmp_feedback   (pc_jmp_feedback),
-                                             .pc_jmp_take       (pc_jmp_take),
-                                             .pc_stash_base     (pc_stash_base[31:0]),
-                                             .pc_jmp            (pc_jmp[31:0]));
+   IF_branch_prediction_static IF_branch_prediction_static(/*AUTOINST*/
+                                                           // Outputs
+                                                           .pc_prediction_take  (pc_prediction_take),
+                                                           // Inputs
+                                                           .clk                 (clk),
+                                                           .reset               (reset),
+                                                           .pc_jmp_feedback     (pc_jmp_feedback),
+                                                           .pc_jmp_take         (pc_jmp_take),
+                                                           .pc_stash_base       (pc_stash_base[31:0]),
+                                                           .pc_jmp              (pc_jmp[31:0]));
 
 
    assign inst_mem_read_addr = pc;

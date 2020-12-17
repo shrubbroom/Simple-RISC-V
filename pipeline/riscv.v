@@ -63,9 +63,7 @@ module riscv(
    wire [4:0]           ID_EX_rd;               // From ID_EX_reg of ID_EX_reg.v
    wire                 ID_EX_regwrite;         // From ID_EX_reg of ID_EX_reg.v
    wire [4:0]           ID_EX_rs1;              // From ID_EX_reg of ID_EX_reg.v
-   wire [31:0]          ID_EX_rs1_data;         // From ID_EX_reg of ID_EX_reg.v
    wire [4:0]           ID_EX_rs2;              // From ID_EX_reg of ID_EX_reg.v
-   wire [31:0]          ID_EX_rs2_data;         // From ID_EX_reg of ID_EX_reg.v
    wire                 ID_EX_unconditional_jmp;// From ID_EX_reg of ID_EX_reg.v
    wire [3:0]           ID_aluop;               // From ID of ID.v
    wire                 ID_alusrc;              // From ID of ID.v
@@ -78,9 +76,7 @@ module riscv(
    wire [4:0]           ID_rd;                  // From ID of ID.v
    wire                 ID_regwrite;            // From ID of ID.v
    wire [4:0]           ID_rs1;                 // From ID of ID.v
-   wire [31:0]          ID_rs1_data;            // From ID of ID.v
    wire [4:0]           ID_rs2;                 // From ID of ID.v
-   wire [31:0]          ID_rs2_data;            // From ID of ID.v
    wire                 ID_unconditional_jmp;   // From ID of ID.v
    wire [31:0]          IF_ID_instruction;      // From IF_ID_reg of IF_ID_reg.v
    wire [31:0]          IF_ID_pc;               // From IF_ID_reg of IF_ID_reg.v
@@ -114,8 +110,8 @@ module riscv(
    wire [31:0]                  data_mem_read_data = data_i;
    wire [4:0]                   reg_read_addr_1;
    wire [4:0]                   reg_read_addr_2;
-   assign reg_read_addr_1 = ID_rs1;
-   assign reg_read_addr_2 = ID_rs2;
+   assign reg_read_addr_1 = ID_EX_rs1;
+   assign reg_read_addr_2 = ID_EX_rs2;
    wire [31:0]                  data_mem_read_addr;
    wire [31:0]                  data_mem_write_addr;
    assign data_addr_o = data_mem_read_enable?data_mem_read_addr:data_mem_write_addr;
@@ -167,21 +163,10 @@ module riscv(
          .ID_rs1                        (ID_rs1[4:0]),
          .ID_rs2                        (ID_rs2[4:0]),
          .ID_rd                         (ID_rd[4:0]),
-         .ID_rs1_data                   (ID_rs1_data[31:0]),
-         .ID_rs2_data                   (ID_rs2_data[31:0]),
          .ID_pc                         (ID_pc[31:0]),
          // Inputs
          .IF_ID_instruction             (IF_ID_instruction[31:0]),
-         .IF_ID_pc                      (IF_ID_pc[31:0]),
-         .MEM_WB_rd                     (MEM_WB_rd[4:0]),
-         .MEM_WB_result                 (MEM_WB_result[31:0]),
-         .MEM_WB_regwrite               (MEM_WB_regwrite),
-         .reg_read_data_1               (reg_read_data_1[31:0]),
-         .reg_read_data_2               (reg_read_data_2[31:0]),
-         .EX_MEM_ALU_result             (EX_MEM_ALU_result[31:0]),
-         .EX_MEM_memread                (EX_MEM_memread),
-         .EX_MEM_rd                     (EX_MEM_rd[4:0]),
-         .EX_MEM_regwrite               (EX_MEM_regwrite));
+         .IF_ID_pc                      (IF_ID_pc[31:0]));
    ID_EX_reg ID_EX_reg(/*AUTOINST*/
                        // Outputs
                        .ID_EX_branch    (ID_EX_branch),
@@ -193,9 +178,7 @@ module riscv(
                        .ID_EX_regwrite  (ID_EX_regwrite),
                        .ID_EX_imme      (ID_EX_imme[31:0]),
                        .ID_EX_rs1       (ID_EX_rs1[4:0]),
-                       .ID_EX_rs1_data  (ID_EX_rs1_data[31:0]),
                        .ID_EX_rs2       (ID_EX_rs2[4:0]),
-                       .ID_EX_rs2_data  (ID_EX_rs2_data[31:0]),
                        .ID_EX_rd        (ID_EX_rd[4:0]),
                        .ID_EX_unconditional_jmp(ID_EX_unconditional_jmp),
                        .ID_EX_pc        (ID_EX_pc[31:0]),
@@ -212,19 +195,10 @@ module riscv(
                        .ID_regwrite     (ID_regwrite),
                        .ID_imme         (ID_imme[31:0]),
                        .ID_rs1          (ID_rs1[4:0]),
-                       .ID_rs1_data     (ID_rs1_data[31:0]),
                        .ID_rs2          (ID_rs2[4:0]),
-                       .ID_rs2_data     (ID_rs2_data[31:0]),
                        .ID_rd           (ID_rd[4:0]),
                        .ID_unconditional_jmp(ID_unconditional_jmp),
-                       .ID_pc           (ID_pc[31:0]),
-                       .EX_MEM_ALU_result(EX_MEM_ALU_result[31:0]),
-                       .EX_MEM_memread  (EX_MEM_memread),
-                       .EX_MEM_rd       (EX_MEM_rd[4:0]),
-                       .EX_MEM_regwrite (EX_MEM_regwrite),
-                       .MEM_WB_rd       (MEM_WB_rd[4:0]),
-                       .MEM_WB_regwrite (MEM_WB_regwrite),
-                       .MEM_WB_result   (MEM_WB_result[31:0]));
+                       .ID_pc           (ID_pc[31:0]));
    EX EX(/*AUTOINST*/
          // Outputs
          .EX_ALU_result                 (EX_ALU_result[31:0]),
@@ -241,9 +215,9 @@ module riscv(
          .EX_pc                         (EX_pc[31:0]),
          // Inputs
          .ID_EX_rs1                     (ID_EX_rs1[4:0]),
-         .ID_EX_rs1_data                (ID_EX_rs1_data[31:0]),
          .ID_EX_rs2                     (ID_EX_rs2[4:0]),
-         .ID_EX_rs2_data                (ID_EX_rs2_data[31:0]),
+         .reg_read_data_1               (reg_read_data_1[31:0]),
+         .reg_read_data_2               (reg_read_data_2[31:0]),
          .ID_EX_rd                      (ID_EX_rd[4:0]),
          .ID_EX_branch                  (ID_EX_branch),
          .ID_EX_alusrc                  (ID_EX_alusrc),

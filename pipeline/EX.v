@@ -12,9 +12,11 @@ module EX#(
            parameter ALU_OP_NOPE = 4'd9
            ) (
               input wire [4:0]  ID_EX_rs1,
-              input wire [31:0] ID_EX_rs1_data,
+              // input wire [31:0] ID_EX_rs1_data,
               input wire [4:0]  ID_EX_rs2,
-              input wire [31:0] ID_EX_rs2_data,
+              // input wire [31:0] ID_EX_rs2_data,
+              input wire [31:0] reg_read_data_1,
+              input wire [31:0] reg_read_data_2,
               input wire [4:0]  ID_EX_rd,
               input wire        ID_EX_branch,
               input wire        ID_EX_alusrc,
@@ -43,14 +45,14 @@ module EX#(
               // output reg        EX_flush,
               /*AUTOINPUT*/
               // Beginning of automatic inputs (from unused autoinst inputs)
-              input [31:0]      EX_MEM_ALU_result, // To EX_hazard_checker of EX_hazard_checker.v
-              input             EX_MEM_memread, // To EX_hazard_checker of EX_hazard_checker.v
-              input             EX_MEM_memtoreg, // To EX_hazard_checker of EX_hazard_checker.v
-              input [4:0]       EX_MEM_rd, // To EX_hazard_checker of EX_hazard_checker.v
-              input             EX_MEM_regwrite, // To EX_hazard_checker of EX_hazard_checker.v
-              input [4:0]       MEM_WB_rd, // To EX_hazard_checker of EX_hazard_checker.v
-              input             MEM_WB_regwrite, // To EX_hazard_checker of EX_hazard_checker.v
-              input [31:0]      MEM_WB_result          // To EX_hazard_checker of EX_hazard_checker.v
+              input [31:0]    EX_MEM_ALU_result,      // To EX_hazard_checker of EX_hazard_checker.v
+              input           EX_MEM_memread,         // To EX_hazard_checker of EX_hazard_checker.v
+              input           EX_MEM_memtoreg,        // To EX_hazard_checker of EX_hazard_checker.v
+              input [4:0]     EX_MEM_rd,              // To EX_hazard_checker of EX_hazard_checker.v
+              input           EX_MEM_regwrite,        // To EX_hazard_checker of EX_hazard_checker.v
+              input [4:0]     MEM_WB_rd,              // To EX_hazard_checker of EX_hazard_checker.v
+              input           MEM_WB_regwrite,        // To EX_hazard_checker of EX_hazard_checker.v
+              input [31:0]    MEM_WB_result          // To EX_hazard_checker of EX_hazard_checker.v
               // End of automatics
               );
    /*AUTOWIRE*/
@@ -87,7 +89,7 @@ module EX#(
    always @ *
      if (EX_hazard_rs1_data_enable) EX_rs1_data = EX_hazard_rs1_data;
      else
-       EX_rs1_data = ID_EX_rs1_data;
+       EX_rs1_data = reg_read_data_1;
 
    always @ *
      // if (ID_EX_alusrc)
@@ -98,7 +100,7 @@ module EX#(
      // else
        if (EX_hazard_rs2_data_enable) EX_rs2_data = EX_hazard_rs2_data;
        else
-         EX_rs2_data = ID_EX_rs2_data;
+         EX_rs2_data = reg_read_data_2;
 
    always @ *
      EX_op1_data = EX_rs1_data;

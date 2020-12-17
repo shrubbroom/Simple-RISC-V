@@ -1,5 +1,4 @@
 `include "ID_ALU_OP.v"
-`include "ID_hazard_checker.v"
 module ID #(
             parameter OP_IMME_ARITHMETIC =  7'b0010011,
             parameter OP_ARITHMETIC =  7'b0110011,
@@ -11,11 +10,11 @@ module ID #(
               input [31:0]      IF_ID_instruction,
               input [31:0]      IF_ID_pc,
               // input             IF_ID_take,
-              input [4:0]       MEM_WB_rd,
-              input [31:0]      MEM_WB_result,
-              input             MEM_WB_regwrite,
-              input [31:0]      reg_read_data_1,
-              input [31:0]      reg_read_data_2,
+              // input [4:0]       MEM_WB_rd,
+              // input [31:0]      MEM_WB_result,
+              // input             MEM_WB_regwrite,
+              // input [31:0]      reg_read_data_1,
+              // input [31:0]      reg_read_data_2,
               output reg        ID_branch,
               output reg        ID_unconditional_jmp,
               output reg        ID_memread,
@@ -30,16 +29,10 @@ module ID #(
               output reg [4:0]  ID_rs2,
               output reg [4:0]  ID_rd,
               // output reg        ID_take,
-              output reg [31:0] ID_rs1_data,
-              output reg [31:0] ID_rs2_data,
-              output reg [31:0] ID_pc,
+              // output reg [31:0] ID_rs1_data,
+              // output reg [31:0] ID_rs2_data,
+              output reg [31:0] ID_pc
               /*AUTOINPUT*/
-              // Beginning of automatic inputs (from unused autoinst inputs)
-              input [31:0]    EX_MEM_ALU_result,      // To ID_hazard_checker of ID_hazard_checker.v
-              input           EX_MEM_memread,         // To ID_hazard_checker of ID_hazard_checker.v
-              input [4:0]     EX_MEM_rd,              // To ID_hazard_checker of ID_hazard_checker.v
-              input           EX_MEM_regwrite        // To ID_hazard_checker of ID_hazard_checker.v
-              // End of automatics
               );
 
 
@@ -153,40 +146,34 @@ module ID #(
 
    /*hazard resolve*/
    /*AUTOWIRE*/
-   // Beginning of automatic wires (for undeclared instantiated-module outputs)
-   wire [31:0]          ID_hazard_rs1_data;     // From ID_hazard_checker of ID_hazard_checker.v
-   wire                 ID_hazard_rs1_data_enable;// From ID_hazard_checker of ID_hazard_checker.v
-   wire [31:0]          ID_hazard_rs2_data;     // From ID_hazard_checker of ID_hazard_checker.v
-   wire                 ID_hazard_rs2_data_enable;// From ID_hazard_checker of ID_hazard_checker.v
-   // End of automatics
-   ID_hazard_checker ID_hazard_checker(
-                                       /*AUTOINST*/
-                                       // Outputs
-                                       .ID_hazard_rs1_data_enable(ID_hazard_rs1_data_enable),
-                                       .ID_hazard_rs1_data(ID_hazard_rs1_data[31:0]),
-                                       .ID_hazard_rs2_data_enable(ID_hazard_rs2_data_enable),
-                                       .ID_hazard_rs2_data(ID_hazard_rs2_data[31:0]),
-                                       // Inputs
-                                       .MEM_WB_rd       (MEM_WB_rd[4:0]),
-                                       .MEM_WB_result   (MEM_WB_result[31:0]),
-                                       .MEM_WB_regwrite (MEM_WB_regwrite),
-                                       .EX_MEM_rd       (EX_MEM_rd[4:0]),
-                                       .EX_MEM_ALU_result(EX_MEM_ALU_result[31:0]),
-                                       .EX_MEM_regwrite (EX_MEM_regwrite),
-                                       .EX_MEM_memread  (EX_MEM_memread),
-                                       .ID_rs1          (ID_rs1[4:0]),
-                                       .ID_rs2          (ID_rs2[4:0]));
-   always @ *
-     if (ID_hazard_rs1_data_enable)
-       ID_rs1_data = ID_hazard_rs1_data;
-     else
-       ID_rs1_data = reg_read_data_1;
+   // ID_hazard_checker ID_hazard_checker(
+   //                                     /*AUTOINST*/
+   //                                     // Outputs
+   //                                     .ID_hazard_rs1_data_enable(ID_hazard_rs1_data_enable),
+   //                                     .ID_hazard_rs1_data(ID_hazard_rs1_data[31:0]),
+   //                                     .ID_hazard_rs2_data_enable(ID_hazard_rs2_data_enable),
+   //                                     .ID_hazard_rs2_data(ID_hazard_rs2_data[31:0]),
+   //                                     // Inputs
+   //                                     .MEM_WB_rd       (MEM_WB_rd[4:0]),
+   //                                     .MEM_WB_result   (MEM_WB_result[31:0]),
+   //                                     .MEM_WB_regwrite (MEM_WB_regwrite),
+   //                                     .EX_MEM_rd       (EX_MEM_rd[4:0]),
+   //                                     .EX_MEM_ALU_result(EX_MEM_ALU_result[31:0]),
+   //                                     .EX_MEM_regwrite (EX_MEM_regwrite),
+   //                                     .EX_MEM_memread  (EX_MEM_memread),
+   //                                     .ID_rs1          (ID_rs1[4:0]),
+   //                                     .ID_rs2          (ID_rs2[4:0]));
+   // always @ *
+   //   if (ID_hazard_rs1_data_enable)
+   //     ID_rs1_data = ID_hazard_rs1_data;
+   //   else
+   //     ID_rs1_data = reg_read_data_1;
 
-   always @ *
-     if (ID_hazard_rs2_data_enable)
-       ID_rs2_data = ID_hazard_rs2_data;
-     else
-       ID_rs2_data = reg_read_data_2;
+   // always @ *
+   //   if (ID_hazard_rs2_data_enable)
+   //     ID_rs2_data = ID_hazard_rs2_data;
+   //   else
+   //     ID_rs2_data = reg_read_data_2;
 
    // always @ *
    //   if (MEM_WB_rd == ID_rs1 && MEM_WB_regwrite)

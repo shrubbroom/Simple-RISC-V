@@ -35,10 +35,10 @@ module ID #(
               output reg [31:0] ID_pc,
               /*AUTOINPUT*/
               // Beginning of automatic inputs (from unused autoinst inputs)
-              input [31:0]      EX_MEM_ALU_result, // To ID_hazard_checker of ID_hazard_checker.v
-              input             EX_MEM_memread, // To ID_hazard_checker of ID_hazard_checker.v
-              input [4:0]       EX_MEM_rd, // To ID_hazard_checker of ID_hazard_checker.v
-              input             EX_MEM_regwrite        // To ID_hazard_checker of ID_hazard_checker.v
+              input [31:0]    EX_MEM_ALU_result,      // To ID_hazard_checker of ID_hazard_checker.v
+              input           EX_MEM_memread,         // To ID_hazard_checker of ID_hazard_checker.v
+              input [4:0]     EX_MEM_rd,              // To ID_hazard_checker of ID_hazard_checker.v
+              input           EX_MEM_regwrite        // To ID_hazard_checker of ID_hazard_checker.v
               // End of automatics
               );
 

@@ -217,7 +217,14 @@ module riscv(
                        .ID_rs2_data     (ID_rs2_data[31:0]),
                        .ID_rd           (ID_rd[4:0]),
                        .ID_unconditional_jmp(ID_unconditional_jmp),
-                       .ID_pc           (ID_pc[31:0]));
+                       .ID_pc           (ID_pc[31:0]),
+                       .EX_MEM_ALU_result(EX_MEM_ALU_result[31:0]),
+                       .EX_MEM_memread  (EX_MEM_memread),
+                       .EX_MEM_rd       (EX_MEM_rd[4:0]),
+                       .EX_MEM_regwrite (EX_MEM_regwrite),
+                       .MEM_WB_rd       (MEM_WB_rd[4:0]),
+                       .MEM_WB_regwrite (MEM_WB_regwrite),
+                       .MEM_WB_result   (MEM_WB_result[31:0]));
    EX EX(/*AUTOINST*/
          // Outputs
          .EX_ALU_result                 (EX_ALU_result[31:0]),

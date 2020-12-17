@@ -41,12 +41,12 @@ using namespace std;
 #endif
 
 void RISC_V_parser(signed int*, int**);
-void RISC_V_arithmetic_parser(signed int* instruction, int** descriptor);
-void RISC_V_imme_arithmetic_parser(signed int* instruction, int** descriptor);
-void RISC_V_conditional_jmp_parser(signed int* instruction, int** descriptor);
-void RISC_V_unconditional_jmp_parser(signed int* instruction, int** descriptor);
-void RISC_V_load_parser(signed int* instruction, int** descriptor);
-void RISC_V_store_parser(signed int* instruction, int** descriptor);
+void RISC_V_arithmetic_parser(signed int* instruction, signed int** descriptor);
+void RISC_V_imme_arithmetic_parser(signed int* instruction, signed int** descriptor);
+void RISC_V_conditional_jmp_parser(signed int* instruction, signed int** descriptor);
+void RISC_V_unconditional_jmp_parser(signed int* instruction, signed int** descriptor);
+void RISC_V_load_parser(signed int* instruction, signed int** descriptor);
+void RISC_V_store_parser(signed int* instruction, signed int** descriptor);
 void RISC_V_add(signed int*, signed int*, signed int*);
 void RISC_V_sub(signed int*, signed int*, signed int*);
 void RISC_V_addi(signed int*, signed int*, signed int);
@@ -131,7 +131,7 @@ int main(int argc, char *argv[]){
   int Register_File_Used[32];
   unsigned int * pc;
   signed int * instruction;
-  int * descriptor[5];
+  signed int * descriptor[5];
 
   if (argc == 1) {
     cout << "Allocating register file, PC and instruction , the size of each "
@@ -148,7 +148,7 @@ int main(int argc, char *argv[]){
     *instruction = 0;
 
     for (int i = 0; i <= 4; ++i) {
-      descriptor[i] = (int *)malloc(sizeof(int));
+      descriptor[i] = (signed int *)malloc(sizeof(signed int));
       *descriptor[i] = 0;
     }
     cout << "Connecting instruction RAM file and data RAM file\n";
@@ -373,7 +373,7 @@ int main(int argc, char *argv[]){
   }
 }
 
-void RISC_V_parser(signed int* instruction, int** descriptor){
+void RISC_V_parser(signed int* instruction, signed int** descriptor){
   switch (*instruction & 0b1111111) {
   case 0b0110011: RISC_V_arithmetic_parser(instruction, descriptor); break;
   case 0b0010011: RISC_V_imme_arithmetic_parser(instruction, descriptor); break;
@@ -421,7 +421,7 @@ void RISC_V_arithmetic_parser(signed int *instruction, int **descriptor) {
   default: exit(1);
   }
 }
-void RISC_V_imme_arithmetic_parser(signed int *instruction, int** descriptor){
+void RISC_V_imme_arithmetic_parser(signed int *instruction, signed int** descriptor){
   if (((*instruction >> 12) & 0b111) == 0b000){
     *descriptor[OP] = ADDI;
     *descriptor[RD] = (*instruction >> 7)&0b11111;
@@ -430,7 +430,7 @@ void RISC_V_imme_arithmetic_parser(signed int *instruction, int** descriptor){
   }
 }
 
-void RISC_V_conditional_jmp_parser(signed int* instruction, int** descriptor){
+void RISC_V_conditional_jmp_parser(signed int* instruction, signed int** descriptor){
   *descriptor[RS1] = (*instruction >> 15) & 0b11111;
   *descriptor[RS2] = (*instruction >> 20) & 0b11111;
   *descriptor[IMME] = ((*instruction >> 7) & 0b11110) |
@@ -442,26 +442,26 @@ void RISC_V_conditional_jmp_parser(signed int* instruction, int** descriptor){
   case 0b000 : *descriptor[OP] = BEQ; break;
   }
 }
-void RISC_V_unconditional_jmp_parser(signed int* instruction, int** descriptor){
+void RISC_V_unconditional_jmp_parser(signed int* instruction, signed int** descriptor){
   *descriptor[OP] = JAL;
   *descriptor[RD] = ((*instruction) >> 7) & 0b11111;
   *descriptor[IMME] = ((*instruction >> 20) & 0b11111111110) |
     ((*instruction >> 9) & 0b100000000000) |
     ((*instruction) & 0xff000) |
-    ((*instruction >> 11) & 0x100000);
+    ((*instruction >> 11) & 0xfff00000);
 }
-void RISC_V_load_parser(signed int* instruction, int** descriptor){
+void RISC_V_load_parser(signed int* instruction, signed int** descriptor){
   *descriptor[OP] = LW;
   *descriptor[RD] = ((*instruction) >> 7) & 0b11111;
   *descriptor[RS1] = ((*instruction) >> 15) & 0b11111;
-  *descriptor[IMME] = ((*instruction) >> 20) & 0xfff;
+  *descriptor[IMME] = ((*instruction) >> 20);
 }
-void RISC_V_store_parser(signed int* instruction, int** descriptor){
+void RISC_V_store_parser(signed int* instruction, signed int** descriptor){
   *descriptor[OP] = SW;
   *descriptor[RS1] = ((*instruction) >> 15) & 0b11111;
   *descriptor[RS2] = ((*instruction) >> 20) & 0b11111;
   *descriptor[IMME] = ((*instruction >> 7) & 0b11111) |
-    ((*instruction >> 20) & 0b111111100000);
+    ((*instruction >> 20) & 0xffffffe0);
 }
 void RISC_V_add(signed int *rd, signed int *rs1, signed int *rs2) {
   *(rd) = *(rs1) + *(rs2);

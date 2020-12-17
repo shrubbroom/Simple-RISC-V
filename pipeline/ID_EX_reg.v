@@ -1,3 +1,4 @@
+`include "ID_EX_stall_hazard_checker.v"
 module ID_EX_reg(
                  input             clk,
                  input             reset,
@@ -33,9 +34,43 @@ module ID_EX_reg(
                  output reg [31:0] ID_EX_rs2_data,
                  output reg [4:0]  ID_EX_rd,
                  output reg        ID_EX_unconditional_jmp,
-                 output reg [31:0] ID_EX_pc
+                 output reg [31:0] ID_EX_pc,
                  // output reg        ID_EX_take
+                 /*AUTOINPUT*/
+                 // Beginning of automatic inputs (from unused autoinst inputs)
+                 input [31:0]      EX_MEM_ALU_result, // To ID_EX_stall_hazard_checker of ID_EX_stall_hazard_checker.v
+                 input             EX_MEM_memread, // To ID_EX_stall_hazard_checker of ID_EX_stall_hazard_checker.v
+                 input [4:0]       EX_MEM_rd, // To ID_EX_stall_hazard_checker of ID_EX_stall_hazard_checker.v
+                 input             EX_MEM_regwrite, // To ID_EX_stall_hazard_checker of ID_EX_stall_hazard_checker.v
+                 input [4:0]       MEM_WB_rd, // To ID_EX_stall_hazard_checker of ID_EX_stall_hazard_checker.v
+                 input             MEM_WB_regwrite, // To ID_EX_stall_hazard_checker of ID_EX_stall_hazard_checker.v
+                 input [31:0]      MEM_WB_result          // To ID_EX_stall_hazard_checker of ID_EX_stall_hazard_checker.v
+                 // End of automatics
                  );
+   /*AUTOWIRE*/
+   // Beginning of automatic wires (for undeclared instantiated-module outputs)
+   wire [31:0]                     ID_EX_stall_hazard_rs1_data;// From ID_EX_stall_hazard_checker of ID_EX_stall_hazard_checker.v
+   wire                            ID_EX_stall_hazard_rs1_data_enable;// From ID_EX_stall_hazard_checker of ID_EX_stall_hazard_checker.v
+   wire [31:0]                     ID_EX_stall_hazard_rs2_data;// From ID_EX_stall_hazard_checker of ID_EX_stall_hazard_checker.v
+   wire                            ID_EX_stall_hazard_rs2_data_enable;// From ID_EX_stall_hazard_checker of ID_EX_stall_hazard_checker.v
+   // End of automatics
+   ID_EX_stall_hazard_checker ID_EX_stall_hazard_checker(/*AUTOINST*/
+                                                         // Outputs
+                                                         .ID_EX_stall_hazard_rs1_data(ID_EX_stall_hazard_rs1_data[31:0]),
+                                                         .ID_EX_stall_hazard_rs2_data(ID_EX_stall_hazard_rs2_data[31:0]),
+                                                         .ID_EX_stall_hazard_rs1_data_enable(ID_EX_stall_hazard_rs1_data_enable),
+                                                         .ID_EX_stall_hazard_rs2_data_enable(ID_EX_stall_hazard_rs2_data_enable),
+                                                         // Inputs
+                                                         .EX_stall              (EX_stall),
+                                                         .ID_EX_rs1             (ID_EX_rs1[4:0]),
+                                                         .ID_EX_rs2             (ID_EX_rs2[4:0]),
+                                                         .MEM_WB_rd             (MEM_WB_rd[4:0]),
+                                                         .MEM_WB_regwrite       (MEM_WB_regwrite),
+                                                         .MEM_WB_result         (MEM_WB_result[31:0]),
+                                                         .EX_MEM_rd             (EX_MEM_rd[4:0]),
+                                                         .EX_MEM_ALU_result     (EX_MEM_ALU_result[31:0]),
+                                                         .EX_MEM_memread        (EX_MEM_memread),
+                                                         .EX_MEM_regwrite       (EX_MEM_regwrite));
    always @ (posedge clk or posedge reset)
      if (reset)
        ID_EX_branch <= 0;
@@ -113,8 +148,12 @@ module ID_EX_reg(
      if (reset)
        ID_EX_rs1_data <= 0;
      else
-       if (EX_stall)
-         ID_EX_rs1_data <= ID_EX_rs1_data;
+       if (EX_stall) begin
+          if (ID_EX_stall_hazard_rs1_data_enable)
+            ID_EX_rs1_data <= ID_EX_stall_hazard_rs1_data;
+          else
+            ID_EX_rs1_data <= ID_EX_rs1_data;
+       end
        else
          ID_EX_rs1_data <= ID_rs1_data;
 
@@ -131,8 +170,12 @@ module ID_EX_reg(
      if (reset)
        ID_EX_rs2_data <= 0;
      else
-       if (EX_stall)
-         ID_EX_rs2_data <= ID_EX_rs2_data;
+       if (EX_stall) begin
+          if (ID_EX_stall_hazard_rs2_data_enable)
+            ID_EX_rs2_data <= ID_EX_stall_hazard_rs2_data;
+          else
+            ID_EX_rs2_data <= ID_EX_rs2_data;
+       end
        else
          ID_EX_rs2_data <= ID_rs2_data;
 
@@ -156,13 +199,13 @@ module ID_EX_reg(
          ID_EX_unconditional_jmp <= ID_unconditional_jmp;
 
    always @ (posedge clk or posedge reset)
-      if (reset)
-        ID_EX_pc <= 0;
-      else
-        if (EX_stall)
-          ID_EX_pc <= ID_EX_pc;
-        else
-          ID_EX_pc <= ID_pc;
+     if (reset)
+       ID_EX_pc <= 0;
+     else
+       if (EX_stall)
+         ID_EX_pc <= ID_EX_pc;
+       else
+         ID_EX_pc <= ID_pc;
 
    // always @ (posedge clk or posedge reset)
    //   if (reset)

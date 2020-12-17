@@ -8,8 +8,7 @@ module IF_branch_prediction_static(
                                  // input        EX_zero,
                                  input [31:0] pc_stash_base,
                                  input [31:0] pc_jmp,
-                                 output reg   pc_prediction_take
+                                 output wire   pc_prediction_take
                                    );
-   always @ *
-     pc_prediction_take = 1;
+   assign pc_prediction_take = 1;
 endmodule

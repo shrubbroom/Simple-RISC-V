@@ -102,8 +102,7 @@ module riscv(
          .reg_read_data_2               (reg_read_data_2[31:0]),
          .ID_imme                       (ID_imme[31:0]),
          .ID_alusrc                     (ID_alusrc),
-         .ID_aluop                      (ID_aluop[3:0]),
-         .ID_memwrite                   (ID_memwrite));
+         .ID_aluop                      (ID_aluop[3:0]));
    WB WB(/*AUTOINST*/
          // Outputs
          .reg_write_enable              (reg_write_enable),

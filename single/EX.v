@@ -16,7 +16,6 @@ module EX
     input wire [31:0] ID_imme,
     input wire        ID_alusrc,
     input wire [3:0]  ID_aluop,
-    input wire        ID_memwrite,
     output reg [31:0] EX_result,
     output wire       EX_zero
     );
@@ -26,7 +25,7 @@ module EX
    assign ALU_op_1 = reg_read_data_1;
 
    always @ *
-     if (ID_alusrc && (~ID_memwrite))
+     if (ID_alusrc)
        ALU_op_2 = ID_imme;
      else
        ALU_op_2 = reg_read_data_2;

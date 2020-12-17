@@ -16,6 +16,5 @@ module WB(
           reg_write_data = inst_mem_read_addr + 4;
         else
           reg_write_data = EX_result;
-   assign reg_write_data = ID_memtoreg?data_mem_read_data:EX_result;
    assign reg_write_enable = ID_regwrite;
 endmodule

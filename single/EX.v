@@ -11,59 +11,40 @@ module EX
     parameter ALU_OP_SHIFT_RIGHT = 4'd8
     )
    (
-    input wire         clk,
-    input wire         reset,
-    input wire [31:0]  reg_read_data_1,
-    input wire [31:0]  reg_read_data_2,
-    input wire [31:0]  imme,
-    input wire         Controller_alusrc,
-    input wire [3:0]   Controller_aluop,
-    input wire         Controller_memwrite,
-    input wire         ID_kick_up,
-    output wire [31:0] ALU_result,
-    output wire        ALU_zero,
-    output wire        ALU_kick_up
+    input wire [31:0] reg_read_data_1,
+    input wire [31:0] reg_read_data_2,
+    input wire [31:0] ID_imme,
+    input wire        ID_alusrc,
+    input wire [3:0]  ID_aluop,
+    input wire        ID_memwrite,
+    output reg [31:0] EX_result,
+    output wire       EX_zero
     );
-   wire [31:0]         ALU_op_1;
+   wire [31:0]        ALU_op_1;
    reg [31:0]         ALU_op_2;
+
    assign ALU_op_1 = reg_read_data_1;
+
    always @ *
-     if (Controller_alusrc && (~Controller_memwrite))
-       ALU_op_2 = imme;
+     if (ID_alusrc && (~ID_memwrite))
+       ALU_op_2 = ID_imme;
      else
        ALU_op_2 = reg_read_data_2;
-   // assign ALU_op_2 = Controller_alusrc?imme:reg_read_data_2;
-   assign ALU_zero = (ALU_result == 0);
-   reg [31:0]          ALU_result_internal;
-   always @ (posedge clk or posedge reset)
-     if (reset)
-       ALU_result_internal <= 0;
-     else begin
-        if (ID_kick_up) begin
-           case (Controller_aluop)
-             ALU_OP_ADD : ALU_result_internal <= ALU_op_1 + ALU_op_2;
-             ALU_OP_SUB : ALU_result_internal <= ALU_op_1 - ALU_op_2;
-             ALU_OP_AND : ALU_result_internal <= ALU_op_1 & ALU_op_2;
-             ALU_OP_OR : ALU_result_internal <= ALU_op_1 | ALU_op_2;
-             ALU_OP_XOR : ALU_result_internal <= ALU_op_1 ^ ALU_op_2;
-             ALU_OP_LT : ALU_result_internal <= ($signed(ALU_op_1) < $signed(ALU_op_2))?32'b0:32'b1;
-             ALU_OP_NONE : ALU_result_internal <= 32'b0;
-             ALU_OP_SHIFT_LEFT : ALU_result_internal <= (ALU_op_1 << ALU_op_2[4:0]);
-             ALU_OP_SHIFT_RIGHT : ALU_result_internal <= (ALU_op_1 >> ALU_op_2[4:0]);
-             default : ALU_result_internal <= 0;
-           endcase
-        end
-        else ALU_result_internal <= ALU_result_internal;
-     end
-   assign ALU_result = ALU_result_internal;
 
-   reg ALU_kick_up_internal;
-   always @ (posedge clk or posedge reset)
-     if (reset)
-       ALU_kick_up_internal <= 0;
-     else begin
-        if (ID_kick_up) ALU_kick_up_internal <= 1;
-        else ALU_kick_up_internal <= 0;
-     end
-   assign ALU_kick_up = ALU_kick_up_internal;
+   assign EX_zero = (EX_result == 0);
+
+   always @ *
+     case (ID_aluop)
+       ALU_OP_ADD : EX_result = ALU_op_1 + ALU_op_2;
+       ALU_OP_SUB : EX_result = ALU_op_1 - ALU_op_2;
+       ALU_OP_AND : EX_result = ALU_op_1 & ALU_op_2;
+       ALU_OP_OR : EX_result = ALU_op_1 | ALU_op_2;
+       ALU_OP_XOR : EX_result = ALU_op_1 ^ ALU_op_2;
+       ALU_OP_LT : EX_result = ($signed(ALU_op_1) < $signed(ALU_op_2))?32'b0:32'b1;
+       ALU_OP_NONE : EX_result = 32'b0;
+       ALU_OP_SHIFT_LEFT : EX_result = (ALU_op_1 << ALU_op_2[4:0]);
+       ALU_OP_SHIFT_RIGHT : EX_result = (ALU_op_1 >> ALU_op_2[4:0]);
+       default : EX_result = 0;
+     endcase
+
 endmodule

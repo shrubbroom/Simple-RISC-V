@@ -57,7 +57,7 @@ quickSortbackpoint2:
         addi x8, x10, 4
         add x9, x9, x0
         jal x0, quickSort
-quickSortend:
+quickSortbackpoint3:
         addi x7, x7, 4
         lw x10, 0(x7)
         addi x7, x7, 4
@@ -66,9 +66,10 @@ quickSortend:
         lw x8, 0(x7)
         addi x7, x7, 4
         lw x11, 0(x7)
+quickSortend:
         beq x11, x0, programend
         beq x11, x12, quickSortbackpoint2
-        jal x0, quickSortend
+        jal x0, quickSortbackpoint3
 qsort:
         add x1, x0, x2
 qsortloop1:

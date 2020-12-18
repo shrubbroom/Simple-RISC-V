@@ -131,22 +131,22 @@ module EX_MEM_reg(
          EX_MEM_rs2_data <= EX_rs2_data;
 
    always @ (posedge clk or posedge reset)
-      if (reset)
-        EX_MEM_pc <= 0;
-      else
-        if (EX_stall)
-          EX_MEM_pc <= 0;
-        else
-          EX_MEM_pc <= EX_pc;
+     if (reset)
+       EX_MEM_pc <= 0;
+     else
+       if (EX_stall)
+         EX_MEM_pc <= 0;
+       else
+         EX_MEM_pc <= EX_pc;
 
    always @ (posedge clk or posedge reset)
-      if (reset)
-        EX_MEM_unconditional_jmp <= 0;
-      else
-        if (EX_stall)
-          EX_MEM_unconditional_jmp <= 0;
-        else
-          EX_MEM_unconditional_jmp <= EX_unconditional_jmp;
+     if (reset)
+       EX_MEM_unconditional_jmp <= 0;
+     else
+       if (EX_stall)
+         EX_MEM_unconditional_jmp <= 0;
+       else
+         EX_MEM_unconditional_jmp <= EX_unconditional_jmp;
 
 
 endmodule // EX_MEM_reg

@@ -44,7 +44,7 @@ for src in ${srcs[*]}; do
         echo "Begin Verilog simulation..."
         vvp $TESTBENCH.vvp > vvp.log
         echo "Begin emulator..."
-        ./emulator x
+        ./emulator x > /dev/null
         echo "Comparing Verilog result with emulator's result..."
         diff data_mem_emu.txt data_mem_verilog.txt
         diff register_file_emu.txt register_file_verilog.txt

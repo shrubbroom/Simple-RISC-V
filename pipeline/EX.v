@@ -1,4 +1,3 @@
-`include "EX_hazard_checker.v"
 module EX#(
            parameter ALU_OP_ADD = 4'd0,
            parameter ALU_OP_SUB = 4'd1,
@@ -11,12 +10,12 @@ module EX#(
            parameter ALU_OP_SHIFT_RIGHT = 4'd8,
            parameter ALU_OP_NOPE = 4'd9
            ) (
-              input wire [4:0]  ID_EX_rs1,
-              // input wire [31:0] ID_EX_rs1_data,
-              input wire [4:0]  ID_EX_rs2,
-              // input wire [31:0] ID_EX_rs2_data,
-              input wire [31:0] reg_read_data_1,
-              input wire [31:0] reg_read_data_2,
+              // input wire [4:0]  ID_EX_rs1,
+              input wire [31:0] ID_EX_rs1_data,
+              // input wire [4:0]  ID_EX_rs2,
+              input wire [31:0] ID_EX_rs2_data,
+              // input wire [31:0] reg_read_data_1,
+              // input wire [31:0] reg_read_data_2,
               input wire [4:0]  ID_EX_rd,
               input wire        ID_EX_branch,
               input wire        ID_EX_alusrc,
@@ -28,11 +27,14 @@ module EX#(
               input wire        ID_EX_regwrite,
               input wire        ID_EX_unconditional_jmp,
               input wire [31:0] ID_EX_pc,
+              input wire        EX_hazard_rs1_data_enable,
+              input wire        EX_hazard_rs2_data_enable,
+              input wire [31:0] EX_hazard_rs1_data,
+              input wire [31:0] EX_hazard_rs2_data,
               // input wire        ID_EX_take,
               output reg [31:0] EX_ALU_result,
               output reg        EX_zero,
               output reg [4:0]  EX_rd,
-              output            EX_stall,
               output reg        EX_branch,
               output reg        EX_memread,
               output reg        EX_memtoreg,
@@ -40,46 +42,30 @@ module EX#(
               output reg        EX_regwrite,
               output reg [31:0] EX_rs2_data,
               output reg        EX_unconditional_jmp,
-              output reg [31:0] EX_pc,
+              output reg [31:0] EX_pc
               // output reg        EX_take,
               // output reg        EX_flush,
               /*AUTOINPUT*/
-              // Beginning of automatic inputs (from unused autoinst inputs)
-              input [31:0]    EX_MEM_ALU_result,      // To EX_hazard_checker of EX_hazard_checker.v
-              input           EX_MEM_memread,         // To EX_hazard_checker of EX_hazard_checker.v
-              input           EX_MEM_memtoreg,        // To EX_hazard_checker of EX_hazard_checker.v
-              input [4:0]     EX_MEM_rd,              // To EX_hazard_checker of EX_hazard_checker.v
-              input           EX_MEM_regwrite,        // To EX_hazard_checker of EX_hazard_checker.v
-              input [4:0]     MEM_WB_rd,              // To EX_hazard_checker of EX_hazard_checker.v
-              input           MEM_WB_regwrite,        // To EX_hazard_checker of EX_hazard_checker.v
-              input [31:0]    MEM_WB_result          // To EX_hazard_checker of EX_hazard_checker.v
-              // End of automatics
               );
    /*AUTOWIRE*/
-   // Beginning of automatic wires (for undeclared instantiated-module outputs)
-   wire [31:0]          EX_hazard_rs1_data;     // From EX_hazard_checker of EX_hazard_checker.v
-   wire                 EX_hazard_rs1_data_enable;// From EX_hazard_checker of EX_hazard_checker.v
-   wire [31:0]          EX_hazard_rs2_data;     // From EX_hazard_checker of EX_hazard_checker.v
-   wire                 EX_hazard_rs2_data_enable;// From EX_hazard_checker of EX_hazard_checker.v
-   // End of automatics
-   EX_hazard_checker EX_hazard_checker(/*AUTOINST*/
-                                       // Outputs
-                                       .EX_stall        (EX_stall),
-                                       .EX_hazard_rs1_data(EX_hazard_rs1_data[31:0]),
-                                       .EX_hazard_rs1_data_enable(EX_hazard_rs1_data_enable),
-                                       .EX_hazard_rs2_data(EX_hazard_rs2_data[31:0]),
-                                       .EX_hazard_rs2_data_enable(EX_hazard_rs2_data_enable),
-                                       // Inputs
-                                       .ID_EX_rs1       (ID_EX_rs1[4:0]),
-                                       .ID_EX_rs2       (ID_EX_rs2[4:0]),
-                                       .EX_MEM_rd       (EX_MEM_rd[4:0]),
-                                       .EX_MEM_regwrite (EX_MEM_regwrite),
-                                       .EX_MEM_ALU_result(EX_MEM_ALU_result[31:0]),
-                                       .EX_MEM_memtoreg (EX_MEM_memtoreg),
-                                       .EX_MEM_memread  (EX_MEM_memread),
-                                       .MEM_WB_rd       (MEM_WB_rd[4:0]),
-                                       .MEM_WB_result   (MEM_WB_result[31:0]),
-                                       .MEM_WB_regwrite (MEM_WB_regwrite));
+   // EX_hazard_checker EX_hazard_checker(/*AUTOINST*/
+   //                                     // Outputs
+   //                                     .EX_stall        (EX_stall),
+   //                                     .EX_hazard_rs1_data(EX_hazard_rs1_data[31:0]),
+   //                                     .EX_hazard_rs1_data_enable(EX_hazard_rs1_data_enable),
+   //                                     .EX_hazard_rs2_data(EX_hazard_rs2_data[31:0]),
+   //                                     .EX_hazard_rs2_data_enable(EX_hazard_rs2_data_enable),
+   //                                     // Inputs
+   //                                     .ID_EX_rs1       (ID_EX_rs1[4:0]),
+   //                                     .ID_EX_rs2       (ID_EX_rs2[4:0]),
+   //                                     .EX_MEM_rd       (EX_MEM_rd[4:0]),
+   //                                     .EX_MEM_regwrite (EX_MEM_regwrite),
+   //                                     .EX_MEM_ALU_result(EX_MEM_ALU_result[31:0]),
+   //                                     .EX_MEM_memtoreg (EX_MEM_memtoreg),
+   //                                     .EX_MEM_memread  (EX_MEM_memread),
+   //                                     .MEM_WB_rd       (MEM_WB_rd[4:0]),
+   //                                     .MEM_WB_result   (MEM_WB_result[31:0]),
+   //                                     .MEM_WB_regwrite (MEM_WB_regwrite));
    reg [31:0]                   EX_rs1_data;
    // reg [31:0]                   EX_rs2_data;
 
@@ -89,7 +75,7 @@ module EX#(
    always @ *
      if (EX_hazard_rs1_data_enable) EX_rs1_data = EX_hazard_rs1_data;
      else
-       EX_rs1_data = reg_read_data_1;
+       EX_rs1_data = ID_EX_rs1_data;
 
    always @ *
      // if (ID_EX_alusrc)
@@ -100,7 +86,7 @@ module EX#(
      // else
        if (EX_hazard_rs2_data_enable) EX_rs2_data = EX_hazard_rs2_data;
        else
-         EX_rs2_data = reg_read_data_2;
+         EX_rs2_data = ID_EX_rs2_data;
 
    always @ *
      EX_op1_data = EX_rs1_data;

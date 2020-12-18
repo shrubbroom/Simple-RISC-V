@@ -8,6 +8,7 @@
 `include "ID_EX_reg.v"
 `include "EX_MEM_reg.v"
 `include "MEM_WB_reg.v"
+`include "EX_hazard_checker.v"
 
 module riscv(
 
@@ -42,6 +43,10 @@ module riscv(
    wire [31:0]          EX_MEM_rs2_data;        // From EX_MEM_reg of EX_MEM_reg.v
    wire                 EX_MEM_unconditional_jmp;// From EX_MEM_reg of EX_MEM_reg.v
    wire                 EX_branch;              // From EX of EX.v
+   wire [31:0]          EX_hazard_rs1_data;     // From EX_hazard_checker of EX_hazard_checker.v
+   wire                 EX_hazard_rs1_data_enable;// From EX_hazard_checker of EX_hazard_checker.v
+   wire [31:0]          EX_hazard_rs2_data;     // From EX_hazard_checker of EX_hazard_checker.v
+   wire                 EX_hazard_rs2_data_enable;// From EX_hazard_checker of EX_hazard_checker.v
    wire                 EX_memread;             // From EX of EX.v
    wire                 EX_memtoreg;            // From EX of EX.v
    wire                 EX_memwrite;            // From EX of EX.v
@@ -49,7 +54,7 @@ module riscv(
    wire [4:0]           EX_rd;                  // From EX of EX.v
    wire                 EX_regwrite;            // From EX of EX.v
    wire [31:0]          EX_rs2_data;            // From EX of EX.v
-   wire                 EX_stall;               // From EX of EX.v
+   wire                 EX_stall;               // From EX_hazard_checker of EX_hazard_checker.v
    wire                 EX_unconditional_jmp;   // From EX of EX.v
    wire                 EX_zero;                // From EX of EX.v
    wire [3:0]           ID_EX_aluop;            // From ID_EX_reg of ID_EX_reg.v
@@ -63,7 +68,9 @@ module riscv(
    wire [4:0]           ID_EX_rd;               // From ID_EX_reg of ID_EX_reg.v
    wire                 ID_EX_regwrite;         // From ID_EX_reg of ID_EX_reg.v
    wire [4:0]           ID_EX_rs1;              // From ID_EX_reg of ID_EX_reg.v
+   wire [31:0]          ID_EX_rs1_data;         // From ID_EX_reg of ID_EX_reg.v
    wire [4:0]           ID_EX_rs2;              // From ID_EX_reg of ID_EX_reg.v
+   wire [31:0]          ID_EX_rs2_data;         // From ID_EX_reg of ID_EX_reg.v
    wire                 ID_EX_unconditional_jmp;// From ID_EX_reg of ID_EX_reg.v
    wire [3:0]           ID_aluop;               // From ID of ID.v
    wire                 ID_alusrc;              // From ID of ID.v
@@ -110,8 +117,8 @@ module riscv(
    wire [31:0]                  data_mem_read_data = data_i;
    wire [4:0]                   reg_read_addr_1;
    wire [4:0]                   reg_read_addr_2;
-   assign reg_read_addr_1 = ID_EX_rs1;
-   assign reg_read_addr_2 = ID_EX_rs2;
+   assign reg_read_addr_1 = ID_rs1;
+   assign reg_read_addr_2 = ID_rs2;
    wire [31:0]                  data_mem_read_addr;
    wire [31:0]                  data_mem_write_addr;
    assign data_addr_o = data_mem_read_enable?data_mem_read_addr:data_mem_write_addr;
@@ -178,7 +185,9 @@ module riscv(
                        .ID_EX_regwrite  (ID_EX_regwrite),
                        .ID_EX_imme      (ID_EX_imme[31:0]),
                        .ID_EX_rs1       (ID_EX_rs1[4:0]),
+                       .ID_EX_rs1_data  (ID_EX_rs1_data[31:0]),
                        .ID_EX_rs2       (ID_EX_rs2[4:0]),
+                       .ID_EX_rs2_data  (ID_EX_rs2_data[31:0]),
                        .ID_EX_rd        (ID_EX_rd[4:0]),
                        .ID_EX_unconditional_jmp(ID_EX_unconditional_jmp),
                        .ID_EX_pc        (ID_EX_pc[31:0]),
@@ -195,7 +204,13 @@ module riscv(
                        .ID_regwrite     (ID_regwrite),
                        .ID_imme         (ID_imme[31:0]),
                        .ID_rs1          (ID_rs1[4:0]),
+                       .EX_hazard_rs1_data_enable(EX_hazard_rs1_data_enable),
+                       .EX_hazard_rs1_data(EX_hazard_rs1_data[31:0]),
+                       .EX_hazard_rs2_data_enable(EX_hazard_rs2_data_enable),
+                       .EX_hazard_rs2_data(EX_hazard_rs2_data[31:0]),
+                       .reg_read_data_1 (reg_read_data_1[31:0]),
                        .ID_rs2          (ID_rs2[4:0]),
+                       .reg_read_data_2 (reg_read_data_2[31:0]),
                        .ID_rd           (ID_rd[4:0]),
                        .ID_unconditional_jmp(ID_unconditional_jmp),
                        .ID_pc           (ID_pc[31:0]));
@@ -204,7 +219,6 @@ module riscv(
          .EX_ALU_result                 (EX_ALU_result[31:0]),
          .EX_zero                       (EX_zero),
          .EX_rd                         (EX_rd[4:0]),
-         .EX_stall                      (EX_stall),
          .EX_branch                     (EX_branch),
          .EX_memread                    (EX_memread),
          .EX_memtoreg                   (EX_memtoreg),
@@ -214,10 +228,8 @@ module riscv(
          .EX_unconditional_jmp          (EX_unconditional_jmp),
          .EX_pc                         (EX_pc[31:0]),
          // Inputs
-         .ID_EX_rs1                     (ID_EX_rs1[4:0]),
-         .ID_EX_rs2                     (ID_EX_rs2[4:0]),
-         .reg_read_data_1               (reg_read_data_1[31:0]),
-         .reg_read_data_2               (reg_read_data_2[31:0]),
+         .ID_EX_rs1_data                (ID_EX_rs1_data[31:0]),
+         .ID_EX_rs2_data                (ID_EX_rs2_data[31:0]),
          .ID_EX_rd                      (ID_EX_rd[4:0]),
          .ID_EX_branch                  (ID_EX_branch),
          .ID_EX_alusrc                  (ID_EX_alusrc),
@@ -229,14 +241,10 @@ module riscv(
          .ID_EX_regwrite                (ID_EX_regwrite),
          .ID_EX_unconditional_jmp       (ID_EX_unconditional_jmp),
          .ID_EX_pc                      (ID_EX_pc[31:0]),
-         .EX_MEM_ALU_result             (EX_MEM_ALU_result[31:0]),
-         .EX_MEM_memread                (EX_MEM_memread),
-         .EX_MEM_memtoreg               (EX_MEM_memtoreg),
-         .EX_MEM_rd                     (EX_MEM_rd[4:0]),
-         .EX_MEM_regwrite               (EX_MEM_regwrite),
-         .MEM_WB_rd                     (MEM_WB_rd[4:0]),
-         .MEM_WB_regwrite               (MEM_WB_regwrite),
-         .MEM_WB_result                 (MEM_WB_result[31:0]));
+         .EX_hazard_rs1_data_enable     (EX_hazard_rs1_data_enable),
+         .EX_hazard_rs2_data_enable     (EX_hazard_rs2_data_enable),
+         .EX_hazard_rs1_data            (EX_hazard_rs1_data[31:0]),
+         .EX_hazard_rs2_data            (EX_hazard_rs2_data[31:0]));
    EX_MEM_reg EX_MEM_reg(/*AUTOINST*/
                          // Outputs
                          .EX_MEM_ALU_result     (EX_MEM_ALU_result[31:0]),
@@ -314,13 +322,28 @@ module riscv(
          .reg_read_data_2               (reg_read_data_2[31:0]),
          // Inputs
          .clk                           (clk),
-         .reset                         (reset),
          .reg_read_addr_1               (reg_read_addr_1[4:0]),
          .reg_read_addr_2               (reg_read_addr_2[4:0]),
          .reg_write_addr                (reg_write_addr[4:0]),
          .reg_write_data                (reg_write_data[31:0]),
          .reg_write_enable              (reg_write_enable));
-
-
+   EX_hazard_checker EX_hazard_checker(/*AUTOINST*/
+                                       // Outputs
+                                       .EX_stall        (EX_stall),
+                                       .EX_hazard_rs1_data(EX_hazard_rs1_data[31:0]),
+                                       .EX_hazard_rs1_data_enable(EX_hazard_rs1_data_enable),
+                                       .EX_hazard_rs2_data(EX_hazard_rs2_data[31:0]),
+                                       .EX_hazard_rs2_data_enable(EX_hazard_rs2_data_enable),
+                                       // Inputs
+                                       .ID_EX_rs1       (ID_EX_rs1[4:0]),
+                                       .ID_EX_rs2       (ID_EX_rs2[4:0]),
+                                       .EX_MEM_rd       (EX_MEM_rd[4:0]),
+                                       .EX_MEM_regwrite (EX_MEM_regwrite),
+                                       .EX_MEM_ALU_result(EX_MEM_ALU_result[31:0]),
+                                       .EX_MEM_memtoreg (EX_MEM_memtoreg),
+                                       .EX_MEM_memread  (EX_MEM_memread),
+                                       .MEM_WB_rd       (MEM_WB_rd[4:0]),
+                                       .MEM_WB_result   (MEM_WB_result[31:0]),
+                                       .MEM_WB_regwrite (MEM_WB_regwrite));
 
 endmodule

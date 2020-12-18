@@ -12,9 +12,13 @@ module ID_EX_reg(
                  input             ID_regwrite,
                  input [31:0]      ID_imme,
                  input [4:0]       ID_rs1,
-                 // input [31:0]      ID_rs1_data,
+                 input             EX_hazard_rs1_data_enable,
+                 input [31:0]      EX_hazard_rs1_data,
+                 input             EX_hazard_rs2_data_enable,
+                 input [31:0]      EX_hazard_rs2_data,
+                 input [31:0]      reg_read_data_1,
                  input [4:0]       ID_rs2,
-                 // input [31:0]      ID_rs2_data,
+                 input [31:0]      reg_read_data_2,
                  input [4:0]       ID_rd,
                  input             ID_unconditional_jmp,
                  input [31:0]      ID_pc,
@@ -28,9 +32,9 @@ module ID_EX_reg(
                  output reg        ID_EX_regwrite,
                  output reg [31:0] ID_EX_imme,
                  output reg [4:0]  ID_EX_rs1,
-                 // output reg [31:0] ID_EX_rs1_data,
+                 output reg [31:0] ID_EX_rs1_data,
                  output reg [4:0]  ID_EX_rs2,
-                 // output reg [31:0] ID_EX_rs2_data,
+                 output reg [31:0] ID_EX_rs2_data,
                  output reg [4:0]  ID_EX_rd,
                  output reg        ID_EX_unconditional_jmp,
                  output reg [31:0] ID_EX_pc
@@ -128,18 +132,18 @@ module ID_EX_reg(
        else
          ID_EX_rs1 <= ID_rs1;
 
-   // always @ (posedge clk or posedge reset)
-   //   if (reset)
-   //     ID_EX_rs1_data <= 0;
-   //   else
-   //     if (EX_stall) begin
-   //        if (ID_EX_stall_hazard_rs1_data_enable)
-   //          ID_EX_rs1_data <= ID_EX_stall_hazard_rs1_data;
-   //        else
-   //          ID_EX_rs1_data <= ID_EX_rs1_data;
-   //     end
-   //     else
-   //       ID_EX_rs1_data <= ID_rs1_data;
+   always @ (posedge clk or posedge reset)
+     if (reset)
+       ID_EX_rs1_data <= 0;
+     else
+       if (EX_stall) begin
+          if (EX_hazard_rs1_data_enable)
+            ID_EX_rs1_data <= EX_hazard_rs1_data;
+          else
+            ID_EX_rs1_data <= ID_EX_rs1_data;
+       end
+       else
+         ID_EX_rs1_data <= reg_read_data_1;
 
    always @ (posedge clk or posedge reset)
      if (reset)
@@ -150,18 +154,18 @@ module ID_EX_reg(
        else
          ID_EX_rs2 <= ID_rs2;
 
-   // always @ (posedge clk or posedge reset)
-   //   if (reset)
-   //     ID_EX_rs2_data <= 0;
-   //   else
-   //     if (EX_stall) begin
-   //        if (ID_EX_stall_hazard_rs2_data_enable)
-   //          ID_EX_rs2_data <= ID_EX_stall_hazard_rs2_data;
-   //        else
-   //          ID_EX_rs2_data <= ID_EX_rs2_data;
-   //     end
-   //     else
-   //       ID_EX_rs2_data <= ID_rs2_data;
+   always @ (posedge clk or posedge reset)
+     if (reset)
+       ID_EX_rs2_data <= 0;
+     else
+       if (EX_stall) begin
+          if (EX_hazard_rs2_data_enable)
+            ID_EX_rs2_data <= EX_hazard_rs2_data;
+          else
+            ID_EX_rs2_data <= ID_EX_rs2_data;
+       end
+       else
+         ID_EX_rs2_data <= reg_read_data_2;
 
 
    always @ (posedge clk or posedge reset)

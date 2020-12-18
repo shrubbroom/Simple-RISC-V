@@ -73,7 +73,7 @@ module IF (
               pc_stash_base <= pc_stash_base;
               pc_stash_imme <= pc_stash_imme;
               if (ID_unconditional_jmp) begin
-                 pc <= pc + ID_imme;
+                 pc <= pc_jmp + ID_imme;
               end
               else begin
                  pc <= pc + 4;

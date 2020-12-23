@@ -1,4 +1,4 @@
-module IF_branch_prediction #(
+module IF_branch_prediction_BHT #(
                               parameter PREDICTION_TAKE = 2'b1,
                               parameter PREDICTION_TAKE_TAKE = 2'b11,
                               parameter PREDICTION_NTAKE = 2'b0,
@@ -39,12 +39,12 @@ module IF_branch_prediction #(
               pc_prediction_table_take[pc_stash_base[9:0]] <= PREDICTION_TAKE;
            end
            2'b01 : begin
-              if (pc_prediction_table_tag[pc_jmp[9:0]] == pc_jmp[31:10])
-                case (pc_prediction_table_take[pc_jmp[9:0]])
-                  PREDICTION_TAKE : pc_prediction_table_take[pc_jmp[9:0]] <= PREDICTION_NTAKE;
-                  PREDICTION_TAKE_TAKE : pc_prediction_table_take[pc_jmp[9:0]] <= PREDICTION_TAKE;
-                  PREDICTION_NTAKE : pc_prediction_table_take[pc_jmp[9:0]] <= PREDICTION_NTAKE_NTAKE;
-                  default : pc_prediction_table_take[pc_jmp[9:0]] <= PREDICTION_NTAKE_NTAKE;
+              if (pc_prediction_table_tag[pc_stash_base[9:0]] == pc_stash_base[31:10])
+                case (pc_prediction_table_take[pc_stash_base[9:0]])
+                  PREDICTION_TAKE : pc_prediction_table_take[pc_stash_base[9:0]] <= PREDICTION_NTAKE;
+                  PREDICTION_TAKE_TAKE : pc_prediction_table_take[pc_stash_base[9:0]] <= PREDICTION_TAKE;
+                  PREDICTION_NTAKE : pc_prediction_table_take[pc_stash_base[9:0]] <= PREDICTION_NTAKE_NTAKE;
+                  default : pc_prediction_table_take[pc_stash_base[9:0]] <= PREDICTION_NTAKE_NTAKE;
                 endcase
               else begin
                  pc_prediction_table_tag[pc_stash_base[9:0]] <= pc_stash_base[31:10];
@@ -52,12 +52,12 @@ module IF_branch_prediction #(
               end
            end
            2'b11 : begin
-              if (pc_prediction_table_tag[pc_jmp[9:0]] == pc_jmp[31:10])
-                case (pc_prediction_table_take[pc_jmp[9:0]])
-                  PREDICTION_TAKE : pc_prediction_table_take[pc_jmp[9:0]] <= PREDICTION_TAKE_TAKE;
-                  PREDICTION_NTAKE_NTAKE : pc_prediction_table_take[pc_jmp[9:0]] <= PREDICTION_NTAKE;
-                  PREDICTION_NTAKE : pc_prediction_table_take[pc_jmp[9:0]] <= PREDICTION_TAKE;
-                  default : pc_prediction_table_take[pc_jmp[9:0]] <= PREDICTION_TAKE_TAKE;
+              if (pc_prediction_table_tag[pc_stash_base[9:0]] == pc_stash_base[31:10])
+                case (pc_prediction_table_take[pc_stash_base[9:0]])
+                  PREDICTION_TAKE : pc_prediction_table_take[pc_stash_base[9:0]] <= PREDICTION_TAKE_TAKE;
+                  PREDICTION_NTAKE_NTAKE : pc_prediction_table_take[pc_stash_base[9:0]] <= PREDICTION_NTAKE;
+                  PREDICTION_NTAKE : pc_prediction_table_take[pc_stash_base[9:0]] <= PREDICTION_TAKE;
+                  default : pc_prediction_table_take[pc_stash_base[9:0]] <= PREDICTION_TAKE_TAKE;
                 endcase
               else begin
                  pc_prediction_table_tag[pc_stash_base[9:0]] <= pc_stash_base[31:10];

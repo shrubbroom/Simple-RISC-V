@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 TESTBENCH=riscv_soc_tb
-srcs=(single pipeline)
+srcs=(pipeline)
 project_root=$(pwd)
 rm -rf testbench
 mkdir testbench
@@ -54,6 +54,8 @@ for src in ${srcs[*]}; do
         mv "${project_root}/testbench/run/data_mem_verilog.txt" "${project_root}/testbench/datalog/${src}${a}/"
         mv "${project_root}/testbench/run/register_file_emu.txt" "${project_root}/testbench/datalog/${src}${a}/"
         mv "${project_root}/testbench/run/register_file_verilog.txt" "${project_root}/testbench/datalog/${src}${a}/"
+        mv "${project_root}/testbench/run/clock_cycle_verilog.txt" "${project_root}/testbench/datalog/${src}${a}/"
+        mv "${project_root}/testbench/run/riscv_soc_tb.vcd" "${project_root}/testbench/datalog/${src}${a}/"
         echo -n "Testing "
         echo -n $a
         echo -n " done"

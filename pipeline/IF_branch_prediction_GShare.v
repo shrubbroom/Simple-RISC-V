@@ -17,32 +17,33 @@ module IF_branch_prediction_GShare#(
    integer                                          i;
    assign pc_prediction_take = pc_prediction_PHT[pc_jmp ^ pc_prediction_GHR][0];
    always @ (posedge clk or posedge reset)
-      if (reset) begin
-         pc_prediction_GHR <= 10'b0;
-         for(i = 0; i <= 1023; i = i + 1) begin
-            pc_prediction_PHT[i] <= PREDICTION_TAKE_TAKE;
-         end
-      end else
-        begin
-           if (pc_jmp_feedback) begin
-                case (pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR])
-                  PREDICTION_TAKE : begin
-                     if (pc_jmp_take) pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_TAKE_TAKE;
-                     else pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_NTAKE;
-                  end
-                  PREDICTION_TAKE_TAKE : begin
-                     if (pc_jmp_take) pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_TAKE_TAKE;
-                     else pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_TAKE;
-                  end
-                  PREDICTION_NTAKE : begin
-                     if (pc_jmp_take) pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_TAKE;
-                     else pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_NTAKE_NTAKE;
-                  end
-                  PREDICTION_NTAKE_NTAKE : begin
-                     if (pc_jmp_take) pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_NTAKE;
-                     else pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_NTAKE_NTAKE;
-                  end
-                endcase // case (pc_stash_base ^^ pc_prediction_GHR)
-           end else begin end
+     if (reset) begin
+        pc_prediction_GHR <= 10'b0;
+        for(i = 0; i <= 1023; i = i + 1) begin
+           pc_prediction_PHT[i] <= PREDICTION_TAKE_TAKE;
         end
+     end else
+       begin
+          if (pc_jmp_feedback) begin
+             pc_prediction_GHR <= {pc_prediction_GHR[8:0],pc_jmp_take};
+             case (pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR])
+               PREDICTION_TAKE : begin
+                  if (pc_jmp_take) pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_TAKE_TAKE;
+                  else pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_NTAKE;
+               end
+               PREDICTION_TAKE_TAKE : begin
+                  if (pc_jmp_take) pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_TAKE_TAKE;
+                  else pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_TAKE;
+               end
+               PREDICTION_NTAKE : begin
+                  if (pc_jmp_take) pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_TAKE;
+                  else pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_NTAKE_NTAKE;
+               end
+               PREDICTION_NTAKE_NTAKE : begin
+                  if (pc_jmp_take) pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_NTAKE;
+                  else pc_prediction_PHT[pc_stash_base ^ pc_prediction_GHR] <= PREDICTION_NTAKE_NTAKE;
+               end
+             endcase // case (pc_stash_base ^^ pc_prediction_GHR)
+          end else begin end
+       end
 endmodule // IF_branch_prediction_GShare

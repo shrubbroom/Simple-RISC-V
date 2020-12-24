@@ -10,6 +10,7 @@ module riscv_soc_tb();
    reg     rst;
    integer i;
    integer handle;
+   integer cycle_counter;
 
 
    initial begin
@@ -38,9 +39,38 @@ module riscv_soc_tb();
          $fwrite(handle, "%h\n", riscv_soc_tb.riscv0.RF.register_file[i]);
       end
       $fclose(handle);
+      handle = $fopen("./clock_cycle_verilog.txt", "w");
+      $fwrite(handle, "%d\n", cycle_counter);
+      $fclose(handle);
       #1000 $finish;
       // #1000   $stop;
    end
+
+   always @ (posedge clk)
+     if (riscv_soc_tb.riscv0.RF.register_file[31]==32'hFFFFFEFE) begin
+        handle = $fopen("./data_mem_verilog.txt","w");
+        for (i = 0; i <= 1023; i = i+1) begin
+           $fwrite(handle, "%h\n", riscv_soc_tb.data_mem0.data[i]);
+        end
+        $fclose(handle);
+        handle = $fopen("./register_file_verilog.txt", "w");
+        $fwrite(handle, "%h\n", 32'b0);
+        for (i = 1; i <= 31; i = i+1) begin
+           $fwrite(handle, "%h\n", riscv_soc_tb.riscv0.RF.register_file[i]);
+        end
+        $fclose(handle);
+        handle = $fopen("./clock_cycle_verilog.txt", "w");
+        $fwrite(handle, "%d\n", cycle_counter);
+        $fclose(handle);
+        $finish;
+     end
+     else begin end
+
+   always @ (posedge clk or posedge rst)
+     if (rst)
+       cycle_counter = 0;
+     else
+       cycle_counter = cycle_counter  +1;
 
    wire[31:0] inst_addr;
    wire [31:0] inst;

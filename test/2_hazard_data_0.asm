@@ -6,3 +6,4 @@ add x5, x4, x3
 add x6, x5, x3
 add x7, x4, x5
 add x8, x7, x6
+addi x31, x0, 1023

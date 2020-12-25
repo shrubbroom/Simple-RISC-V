@@ -46,7 +46,7 @@ module IF (
    always @ (posedge clk or posedge reset)
      if (reset)
        pc <= 0;
-     else
+     else begin
        if (EX_stall) begin
           pc <= pc; // fatal hazard, e.g. use after load
        end else
@@ -82,4 +82,5 @@ module IF (
                  pc <= pc + 4;
               end
            end // else: !if(ID_branch)
+     end // else: !if(reset)
 endmodule

@@ -27,7 +27,7 @@ module riscv_soc_tb();
         $dumpvars(0, riscv_soc_tb.data_mem0.data[i]);
       rst = 1'b1;
       #300    rst= 1'b0;
-      #5000000;
+      #50000000;
       handle = $fopen("./data_mem_verilog.txt","w");
       for (i = 0; i <= 1023; i = i+1) begin
          $fwrite(handle, "%h\n", riscv_soc_tb.data_mem0.data[i]);

@@ -1,7 +1,9 @@
 * Simple RISC-V
   This is my course design of MR329 (计算机处理器与系统), 2020 Fall. I
   implemented a simple RISC-V processor in Verilog HDL. This
-  repository is only for reference. Any kind of plagiarism is strongly
-  unrecommended.
+  repository is only for reference. Any kind of plagiarism is *strongly
+  not recommended*.
 
-  This repository is licensed with GPLv3.
+  This repository is licensed with GPLv3. No responsibility is
+  guaranteed if you want to use the source code in your course
+  design. You should always follow the license in redistribution.

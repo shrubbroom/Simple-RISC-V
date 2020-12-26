@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 TESTBENCH=riscv_soc_tb
-srcs=(pipeline)
+srcs=(pipeline single)
 project_root=$(pwd)
 rm -rf testbench
 mkdir testbench
